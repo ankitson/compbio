@@ -37,14 +37,31 @@ def pattern_match(text,pattern):
 #Clump Finding Problem: Find patterns forming clumps in a string.
 #  Input: A string Genome, and integers k, L, and t.
 #  Output: All distinct k-mers forming (L, t)-clumps in Genome.
+# Optimized version using sliding windows
 def find_clumps(text, k, L, t):
   n = len(text)
   clump_kmers = set()
-  for i in range(n-L+1):
-    window = text[i:i+L]
-    kmers = freq_map_kmers(window, k)
-    kmers_above_t = [k for (k,v) in kmers.items() if v >= t]
-    clump_kmers.update(kmers_above_t)
+  kmer_dict = {}
+
+  window = text[:L]
+  kmer_dict = freq_map_kmers(window, k)
+  kmers_above_t = [k for (k,v) in kmer_dict.items() if v >= t]
+  clump_kmers.update(kmers_above_t)
+  
+  # Slide the window and update the frequency map
+  for i in range(1,n-L+1):
+    # Remove the first k-mer of the previous window
+    prev_kmer = text[i-1:i-1+k]
+    kmer_dict[prev_kmer] -= 1
+
+    # Add the last k-mer of the current window
+    curr_kmer = text[i+L-k:i+L]
+    kmer_dict[curr_kmer] = kmer_dict.get(curr_kmer,0) + 1
+
+    # Check for k-mers above threshold and update clumps
+    if kmer_dict[curr_kmer] >= t:
+      clump_kmers.add(curr_kmer)
+
   return sorted(list(clump_kmers))
 
 ## FILE IO
@@ -73,6 +90,12 @@ def c(color, text):
     if shortk == color or k == color:
       return v + text + color_dict["END"]
 
-def print_sep():
-  print(c("RED","-"*100))
+def print_sep(text=None):
+  SEP_LEN = 100
+  if text:
+    num_char = len(text)
+    num_spc = SEP_LEN - num_char
+    print(c("RED","-"*(num_spc//2)) + c("BLUE",text) + c("RED","-"*(num_spc//2)))
+  else:
+    print(c("RED","-"*100))
 
