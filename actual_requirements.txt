@@ -1,0 +1,8 @@
+# Top level packages installed
+
+pandas
+numpy
+scipy
+Flask
+plotly
+dash
