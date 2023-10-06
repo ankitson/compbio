@@ -51,5 +51,14 @@ ans = find_clumps(ecoli_genome, k=9, L=500, t=3)
 write_temp(' '.join(ans))
 print(len(ans))
 
+print_sep("Coursera Quiz 1")
+
+# Quiz 1
+s = 'TAAACGTGAGAGAAACGTGCTGATTACACTTGTTCGTGTGGTAT'
+print(frequent_words(s,3))
+
+s = 'AAACATAGGATCAAC'
+print(pattern_match(s,"AA"))
+
 
 print("all assertions passed!")
