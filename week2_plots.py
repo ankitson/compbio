@@ -12,6 +12,8 @@ def get_counts_ecoli(nucleotide):
   npecoli = np.array(list(ecoli))
 
   fragments = np.array_split(npecoli,NUM_FRAGMENTS)
+  fragments_untyp = np.array(fragments, dtype=object)
+  fragments = np.roll(fragments_untyp, -16, axis=0)
   counts = [np.count_nonzero(fragment == nucleotide) for fragment in fragments]
   return fragments, counts
 
@@ -39,13 +41,13 @@ def graph_counts_pct(nucleotide):
 
 #This is called a bidirectional bar chart
 def graph_counts_pct_shifted(nucleotide, shift_base=25):
+  fragments, counts = get_counts_ecoli(nucleotide)
+  #npccount = np.roll(c_counts,-16) #,axis=0)
 
-  fragments, c_counts = get_counts_ecoli(nucleotide)
-  npccount = np.roll(c_counts,-16) #,axis=0)
 
-  pct_counts = [count/len(fragments[0]) * 100 for count in npccount]
+  pct_counts = [count/len(fragments[0]) * 100 for count in counts]
   pct_counts_shifted = [pct - shift_base for pct in pct_counts]
-  num_fragments = len(c_counts)
+  num_fragments = len(counts)
 
   fig = go.Figure()
 
@@ -61,10 +63,6 @@ def graph_counts_pct_shifted(nucleotide, shift_base=25):
       title=f'Variation in frequency of {nucleotide} with position along genome (E. coli)',
       yaxis=dict(title=f'Frequency of {nucleotide} (%)', range=(shift_base-5,shift_base+5)),
       xaxis=dict(title='Chunk', tickvals=np.linspace(1,num_fragments,10)),
-      
-      #autosize=True
-      #width=850,
-      #height=495
   )
 
   # MUST USE <img .. /> instead of <img..></img>
@@ -75,13 +73,62 @@ There are {num_fragments} fragments, of size {len(fragments[-1])}-{len(fragments
   
   img = ""
   if nucleotide == 'C':
-    img = """<img src='../static/ecoli_cytosine_frequency.png' width='750' height='495'/>"""
+    img = """This graph should roughly match up with the below graph from [here](https://cogniterra.org/lesson/30277/step/1?unit=22352) <br/>
+    <img src='../static/ecoli_cytosine_frequency.png' width='750' height='495'/>"""
   elif nucleotide == 'G':
     img = """This graph should roughly match up with the below graph from [here](https://cogniterra.org/lesson/30277/step/1?unit=22352) <br/>
-    <img src='../static/ecoli_guanine_frequency.png' />"""
-  
-  #width='750' height='495'
+    <img src='../static/ecoli_guanine_frequency.png' width='750' height='495'/>"""
   descr += img
+
+  return (fig, descr)
+
+def graph_diff_counts_pct(b1,b2):
+  fragments1, counts1 = get_counts_ecoli(b1)
+  fragments2, counts2 = get_counts_ecoli(b2)
+  #counts1 = np.roll(counts1,-16)
+  #counts2 = np.roll(counts2,-16)
+  #npccount = np.roll(c_counts,-16) #,axis=0)
+
+  pct_counts1 = [count/len(fragments1[0]) * 100 for count in counts1]
+  pct_counts2 = [count/len(fragments2[0]) * 100 for count in counts2]
+
+  pct_diff = [pct_counts1[i] - pct_counts2[i] for i in range(len(counts1))]
+  
+  #pct_counts_shifted = [pct - shift_base for pct in pct_counts]
+  num_fragments = len(counts1)
+
+  fig = go.Figure()
+
+  fig.add_trace(go.Bar(
+    y=pct_diff,
+    x=list(range(num_fragments)),
+    orientation='v',
+  ))
+
+  fig.update_layout(
+      barmode='relative',
+      #title=f'Variation in frequency of {nucleotide} with position along genome (E. coli)',
+      #yaxis=dict(title=f'Frequency of {nucleotide} (%)', range=(shift_base-5,shift_base+5)),
+      #xaxis=dict(title='Chunk', tickvals=np.linspace(1,num_fragments,10)),
+  )
+
+
+  # MUST USE <img .. /> instead of <img..></img>
+  # MUST USE ../static/.. for static paths
+  #descr = f"""These are the percentage of {nucleotide}'s in each fragment. 
+#There are {num_fragments} fragments, of size {len(fragments[-1])}-{len(fragments[0])} each.
+  #  """
+
+  descr = ""
+  
+  img = ""
+  #if nucleotide == 'C':
+  #  img = """This graph should roughly match up with the below graph from [here](https://cogniterra.org/lesson/30277/step/1?unit=22352) <br/>
+  #  <img src='../static/ecoli_cytosine_frequency.png' width='750' height='495'/>"""
+  #elif nucleotide == 'G':
+  #  img = """This graph should roughly match up with the below graph from [here](https://cogniterra.org/lesson/30277/step/1?unit=22352) <br/>
+  #  <img src='../static/ecoli_guanine_frequency.png' width='750' height='495'/>"""
+  #descr += img
 
   return (fig, descr)
 
