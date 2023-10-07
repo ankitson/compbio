@@ -27,7 +27,7 @@ def test_week1():
 
   #1.3 - 6
   #find positions where given seq appears in the cholera genome
-  vibrio_cholera_genome = open('inputs/Vibrio_Cholera_Genome.txt','r').read()
+  with open('inputs/Vibrio_Cholera_Genome.txt','r') as f: vibrio_cholera_genome = f.read()
   ans = pattern_match(vibrio_cholera_genome, 'CTTGATCAT')
   print(' '.join([str(x) for x in ans]))
 
@@ -47,7 +47,7 @@ def test_week1():
 
   print_sep("Find how many 9-mers form (500,3) clumps in the E. Coli Genome (4.6ßMB!)")
 
-  ecoli_genome = open('inputs/E_coli_genome.txt','r').read()
+  with open('inputs/E_coli_genome.txt','r') as f: ecoli_genome = f.read()
   ans = find_clumps(ecoli_genome, k=9, L=500, t=3)
   write_temp(' '.join(ans))
   print(len(ans))
