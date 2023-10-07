@@ -133,6 +133,34 @@ def frequent_words_approx(text, k, d):
       freqs[kmer] = freqs.get(kmer, 0) + 1
     return freqs
 
+#TODO: What is the runtime of this function? How can it be optimized?
+def neighbors_lt(pattern, d):
+  """
+  Neighbors: Find the d-neighborhood of a string (all dist < d).
+    Input: A string Pattern and an integer d.
+    Output: The collection of strings Neighbors(Pattern, d).
+  """
+
+  #T(n) = runtime for pattern of length n (fixed d)
+  #H(n) = number of neighbors for length n (fixed d)
+  #T(n) = H(n-1)*(n-1) + T(n-1) 
+  #T(n) = H(n-1)*(n-1) + H(n-2)(n-2) + ...
+
+  if d == 0:
+    return [pattern]
+  if len(pattern) == 1:
+    return ['A', 'T', 'C', 'G']
+  suffix_nbrs = neighbors_lt(pattern[1:], d) 
+  nbrs = set([pattern])
+  for snbr in suffix_nbrs:
+    if hamming_distance(snbr, pattern[1:]) < d:
+      for b in ['A', 'T', 'C', 'G']:
+        nbrs.add(b + snbr)
+    else:
+      nbrs.add(pattern[0] + snbr)
+  return nbrs
+
+
 
 ## FILE IO
 def write_temp(inp):
