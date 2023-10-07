@@ -135,9 +135,14 @@ def frequent_words_approx(text, k, d):
 
 
 ## FILE IO
-def write_temp(text):
+def write_temp(inp):
   out = open('temp.txt','w')
+  if hasattr(inp, '__iter__'):
+    text = format_iter(inp)
+  else:
+    text = str(inp)
   out.write(text)
+  print("written to file temp.txt")
   return out.close()
 
 ## CONSOLE IO
@@ -169,6 +174,9 @@ def print_sep(text=None):
   else:
     print(c("RED","-"*100))
 
+def format_iter(l):
+  return ' '.join([str(x) for x in l])
+
 def print_iter(l):
-  print(' '.join([str(x) for x in l]))
+  print(format_iter(l))
   
