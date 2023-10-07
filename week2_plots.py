@@ -61,24 +61,26 @@ def graph_counts_pct_shifted(nucleotide, shift_base=25):
       title=f'Variation in frequency of {nucleotide} with position along genome (E. coli)',
       yaxis=dict(title=f'Frequency of {nucleotide} (%)', range=(shift_base-5,shift_base+5)),
       xaxis=dict(title='Chunk', tickvals=np.linspace(1,num_fragments,10)),
-      width=850,
-      height=495
+      
+      #autosize=True
+      #width=850,
+      #height=495
   )
 
   # MUST USE <img .. /> instead of <img..></img>
   # MUST USE ../static/.. for static paths
-  descr = f"""## These are the percentage of {nucleotide}'s in each fragment. 
+  descr = f"""These are the percentage of {nucleotide}'s in each fragment. 
 There are {num_fragments} fragments, of size {len(fragments[-1])}-{len(fragments[0])} each.
     """
   
   img = ""
   if nucleotide == 'C':
-    img = """This graph should roughly match up with the below graph from [here](https://cogniterra.org/lesson/30277/step/1?unit=22352) <br/>
-    <img src='../static/ecoli_cytosine_frequency.png' width='750' height='495' />"""
+    img = """<img src='../static/ecoli_cytosine_frequency.png' width='750' height='495'/>"""
   elif nucleotide == 'G':
     img = """This graph should roughly match up with the below graph from [here](https://cogniterra.org/lesson/30277/step/1?unit=22352) <br/>
-    <img src='../static/ecoli_guanine_frequency.png' width='750' height='495' />"""
+    <img src='../static/ecoli_guanine_frequency.png' />"""
   
+  #width='750' height='495'
   descr += img
 
   return (fig, descr)
