@@ -8,3 +8,4 @@ Flask
 plotly
 dash
 dash-bootstrap-components
+pytest
