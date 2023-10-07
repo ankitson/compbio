@@ -1,0 +1,20 @@
+<!-- dash.html (Flask template) -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Flask Dashboard Page</title>
+</head>
+
+<body>
+  <h2>Dashboard Embedded in Flask Page</h2>
+
+  <!-- Embed the Dash app's script and div -->
+  <div id="dash-container">
+    {{ dash_html | safe }}
+  </div>
+</body>
+
+</html>
