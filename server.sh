@@ -1,4 +1,4 @@
 #!/bin/bash
 
 source venv/bin/activate
-flask run
+python3 dashapp.py

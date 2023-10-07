@@ -64,6 +64,76 @@ def find_clumps(text, k, L, t):
 
   return sorted(list(clump_kmers))
 
+def minimum_skew(text):
+  skew_map = {'G': 1, 'C': -1, 'A': 0, 'T': 0} #contribution to skew of each base
+  min_skew = float('inf')
+  indices = []
+  skew = 0
+  for i, base in enumerate(text):
+    skew += skew_map[base]
+    if skew < min_skew:
+      indices = [i+1]
+      min_skew = skew
+    elif skew == min_skew:
+      indices.append(i+1)
+    else:
+      pass
+  return indices
+
+
+def hamming_distance(s1, s2):
+  """
+  Hamming Distance Problem: Compute the Hamming distance between two strings.
+    Input: Two strings of equal length.
+    Output: The Hamming distance between these strings.
+  (extended to work with unequal length strings)
+  """
+  l1 = len(s1)
+  l2 = len(s2)
+  dist = 0
+  for i in range(min(l1,l2)):
+    dist += 1 if s1[i] != s2[i] else 0
+  dist += max(l1,l2) - min(l1,l2)
+  return dist
+
+def pattern_match_approx(text,pattern,d):
+  """
+  Approximate Pattern Matching Problem: Find all approximate occurrences of a pattern in a string.
+    * Input: Strings Pattern and Text along with an integer d.
+    * Output: All starting positions where Pattern appears as a substring of Text with at most d mismatches.
+  """
+  starts = []
+  for i in range(len(text) - len(pattern) + 1):
+    if hamming_distance(text[i:i+len(pattern)],pattern) <= d:
+      starts.append(i)
+  return starts
+
+def pattern_count_approx(text, pattern, d):
+  n = len(text)
+  k = len(pattern)
+  count = 0
+  for i in range(n-k+1):
+    window = text[i:i+k]
+    if hamming_distance(window, pattern) <= d:
+      count += 1
+  return count
+
+
+def frequent_words_approx(text, k, d):
+  """
+  Frequent Words with Mismatches Problem: Find the most frequent k-mers with mismatches in a string.
+    Input: A string Text as well as integers k and d.
+    Output: All most frequent k-mers with up to d mismatches in Text.
+  """
+  def freq_map_kmers_approx(text, k, d):
+    n = len(text)
+    freqs = {}
+    for i in range(n-k+1):
+      kmer = text[i:i+k]
+      freqs[kmer] = freqs.get(kmer, 0) + 1
+    return freqs
+
+
 ## FILE IO
 def write_temp(text):
   out = open('output.txt','w')
@@ -99,3 +169,6 @@ def print_sep(text=None):
   else:
     print(c("RED","-"*100))
 
+def print_iter(l):
+  print(' '.join([str(x) for x in l]))
+  
