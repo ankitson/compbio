@@ -1,44 +1,36 @@
 from dash import Dash, html, dcc, callback, Output, Input
+from week2 import graph_C_counts_pct, graph_C_counts_raw, graph_test, graph_C_counts_pct_shifted
 import plotly.express as px
-import pandas as pd
-import numpy as np
 
-NUM_FRAGMENTS = 46
-
-
-ecoli = open('inputs/E_coli_genome.txt').read().strip()
-npecoli = np.array(list(ecoli))
-
-fragments = np.array_split(npecoli,NUM_FRAGMENTS)
-c_counts = [np.count_nonzero(fragment == 'C') for fragment in fragments]
-
-#fragment_size = len(ecoli) // NUM_FRAGMENTS
-#ecoli_fragments = [ecoli[i:i+fragment_size] for i in range(0, len(ecoli), fragment_size)]
-#c_counts = [fragment.count('C') for fragment in ecoli_fragments]
-#print(c_counts)
-
-
-fig = px.bar(x=list(range(NUM_FRAGMENTS)), y=c_counts)
-
-
-#df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapminder_unfiltered.csv')
 app = Dash(__name__)
 server = app.server
 
+figure_select = ["Example", "C Counts (Raw)", "C Counts (Pct)", "C Counts (Pct Base)", "Test"]
+
 app.layout = html.Div([
   html.H1(children='Bioinformatics I', style={'textAlign':'center'}),
-  #dcc.Dropdown(df.country.unique(), 'ss', id='dropdown-selection'),
-  #dcc.Graph(id='graph-content'),
-  dcc.Graph(figure=fig, id='c-counts')
+  dcc.Dropdown(figure_select, figure_select[3], id='dropdown-selection'),
+  dcc.Graph(figure={}, id='graph-content'),
+  dcc.Markdown(id='graph-description', style={'align':'center'}, dangerously_allow_html=True),
 ])
 
-#@callback(
-#  Output('graph-content', 'figure'),
-#  Input('dropdown-selection', 'value')
-#)
-#def update_graph(value):
-  #dff = df[df.country==value]
-  #return px.line(dff, x='year', y='pop')
+@callback(
+  Output('graph-content', 'figure'),
+  Output('graph-description', 'children'),
+  Input('dropdown-selection', 'value')
+)
+def update_graph(value):
+  if value == 'C Counts (Raw)':
+    return graph_C_counts_raw()
+  elif value == 'C Counts (Pct)':
+    return graph_C_counts_pct()
+  elif value == "C Counts (Pct Base)":
+    a, b = graph_C_counts_pct_shifted()
+    return (a,b) 
+  elif value == "Test":
+    return graph_test()
+  else:
+    return px.bar(x=[1,2,3],y=[1,2,3]), f"# This is an example"
 
 if __name__ == '__main__':
   app.run(debug=True)
