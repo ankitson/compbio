@@ -1,8 +1,11 @@
 from flask import Flask
 
+
 def init_app():
   """Contruct core Flask application."""
-  app = Flask(__name__, instance_relative_config=False)
+  app = Flask(__name__, 
+              static_folder='../static',
+              instance_relative_config=False)
 
   with app.app_context():
     from . import routes

@@ -65,13 +65,22 @@ def graph_counts_pct_shifted(nucleotide, shift_base=25):
       height=495
   )
 
-  # NOTE: MUST USE <img .. /> instead of <img..></img>
+  # MUST USE <img .. /> instead of <img..></img>
+  # MUST USE ../static/.. for static paths
   descr = f"""## These are the percentage of {nucleotide}'s in each fragment. 
 There are {num_fragments} fragments, of size {len(fragments[-1])}-{len(fragments[0])} each.
-This graph should roughly match up with the below graph from [here](https://cogniterra.org/lesson/30277/step/1?unit=22352) <br/>
-<img src='http://bioinformaticsalgorithms.com/images/Replication/ecoli_cytosine_frequency.png' width='750' height='495' />
     """
   
+  img = ""
+  if nucleotide == 'C':
+    img = """This graph should roughly match up with the below graph from [here](https://cogniterra.org/lesson/30277/step/1?unit=22352) <br/>
+    <img src='../static/ecoli_cytosine_frequency.png' width='750' height='495' />"""
+  elif nucleotide == 'G':
+    img = """This graph should roughly match up with the below graph from [here](https://cogniterra.org/lesson/30277/step/1?unit=22352) <br/>
+    <img src='../static/ecoli_guanine_frequency.png' width='750' height='495' />"""
+  
+  descr += img
+
   return (fig, descr)
 
 def graph_test():

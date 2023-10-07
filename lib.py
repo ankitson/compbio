@@ -136,7 +136,7 @@ def frequent_words_approx(text, k, d):
 
 ## FILE IO
 def write_temp(text):
-  out = open('output.txt','w')
+  out = open('temp.txt','w')
   out.write(text)
   return out.close()
 

@@ -7,19 +7,22 @@ def init_dash(server):
   dash_app = Dash(
     server=server,
     routes_pathname_prefix='/dash/',
+    #requests_pathname_prefix='/static/'
     #external_stylesheets=[],
   )
 
   figure_select = ["Example", "Counts (Raw)", "Counts (Pct)", "Counts (Pct Base)", "Test"]
   dash_app.layout= html.Div([
     html.H1(children='Bioinformatics I', style={'textAlign':'center'}),
-    dcc.Dropdown(figure_select, figure_select[3], id='dropdown-selection'),
+    dcc.Dropdown(figure_select, figure_select[0], id='dropdown-selection'),
     dcc.Dropdown(["A","T","C","G"], "C", id="nucleotide-selection"),
     dcc.Graph(figure={}, id='graph-content'),
     dcc.Markdown(id='graph-description', style={'align':'center'}, dangerously_allow_html=True),
   ])
 
   init_callbacks(dash_app)
+
+  init_routes(dash_app)
 
   return dash_app.server
 
@@ -40,4 +43,10 @@ def init_callbacks(dash_app):
     elif value == "Test":
       return graph_test()
     else:
-      return px.bar(x=[1,2,3],y=[1,2,3]), f"# This is an example" # @app.route('/')
+      return px.bar(x=[1,2,3],y=[1,2,3]), f"# <img src='../static/ecoli_guanine_frequency.png'/> This is an example" # @app.route('/')
+
+def init_routes(dash_app):
+  pass
+  #@dash_app.route("/static")
+  #def static():
+  #  return "static"
