@@ -160,6 +160,42 @@ def neighbors_lt(pattern, d):
       nbrs.add(pattern[0] + snbr)
   return nbrs
 
+def frequent_words_with_mismatches(text, k, d):
+  """
+  Frequent Words with Mismatches Problem.
+    Input: A string Text as well as integers k and d. (You may assume k ≤ 12 and d ≤ 3.)
+    Output: All most frequent k-mers with up to d mismatches in Text.
+  """
+  freq_map = {}
+  n = len(text)
+  for i in range(n-k+1):
+    pattern = text[i:i+k]
+    nbrs = neighbors_lt(pattern, d)
+    for nbr in nbrs:
+      freq_map[nbr] = freq_map.get(nbr,0) + 1
+  max_freq = max(freq_map.values())
+  max_freq_kmers = [kmer for kmer in freq_map if freq_map[kmer] == max_freq]
+  return max_freq_kmers
+
+def frequent_words_with_mismatches_complements(text, k, d):
+  """
+  Frequent Words with Mismatches and Reverse Complements Problem: Find the most frequent k-mers (with mismatches and reverse complements) in a string.
+    Input: A DNA string Text as well as integers k and d.
+    Output: All k-mers Pattern maximizing the sum Countd(Text, Pattern)+ Countd(Text, Patternrc) over all possible k-mers.
+  """
+  freq_map = {}
+  n = len(text)
+  for i in range(n-k+1):
+    pattern = text[i:i+k]
+    nbrs = neighbors_lt(pattern, d)
+    for nbr in nbrs:
+      freq_map[nbr] = freq_map.get(nbr,0) + 1
+      nbrc = reverse_complement(nbr)
+      freq_map[nbrc] = freq_map.get(nbrc,0) + 1
+
+  max_freq = max(freq_map.values())
+  max_freq_kmers = [kmer for kmer in freq_map if freq_map[kmer] == max_freq]
+  return max_freq_kmers
 
 
 ## FILE IO

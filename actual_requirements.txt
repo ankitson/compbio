@@ -1,4 +1,5 @@
 # Top level packages installed
+# because pip requirements does not distinguish between direct and indirect deps
 
 pandas
 numpy
@@ -6,3 +7,4 @@ scipy
 Flask
 plotly
 dash
+dash-bootstrap-components
