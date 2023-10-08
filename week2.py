@@ -58,18 +58,55 @@ def test_week2():
 
   soln = frequent_words_with_mismatches_complements("ACGTTGCATGTCGCATGATGCATGAGAGCT", k=4, d=1)
   print("ACGTTGCATGTCGCATGATGCATGAGAGCT, k=4, d=1:")
-  print_iter(soln)
-  assert(sorted(soln) == ['ACAT', 'ATGT'])
+  print_iter(soln[0])
+  assert(sorted(soln[0]) == ['ACAT', 'ATGT'])
 
   soln = frequent_words_with_mismatches_complements("TTTCATGCAAATGAAGAAAAAAGAATGGAATGTGTTTAAGAAAATGAAGAAGAAGAAGAATTTGAAGAATTTTGTTTCATTTAAGAAGAATGCATGTGAAGAAAATGCAGAAGAACATGAACAAATTTGAAGAAGAACATTTCAGAAAAGAATTTAATTTGAAGAACATGTGTGGAAAAGAACAGAAGAATGTTTTTTTGAAGAATTTAATTTCAGAAGAAAAAAAAAAAAGAA", k=5, d=3)
   print("exercise soln:")
-  print_iter(soln)
+  print_iter(soln[0])
 
   print_sep("Epilogue: Find a DnaA Box in Salmonella enterica!!")
   print("The skew diagram shows the minimum at around position 3,923,600")
   salmonella = constants.genome('salmonella')
-  ori_cand = minimum_skew(salmonella)
-  print(f"Minimum skew position computed: {ori_cand}")
+  ori_cands = minimum_skew(salmonella)
+  print(f"Minimum skew positions computed: {ori_cands}")
+  ori_cand = ori_cands[0]
+
+  region = salmonella[ori_cand-100:ori_cand+100]
+  for k in range(9,10):
+    freqs, map = frequent_words_with_mismatches_complements(region, k=k, d=1)
+    inv_map = {}
+    for k1, v1 in map.items():
+        inv_map[v1] = inv_map.get(v1, [])
+        inv_map[v1].append(k1)
+    #print(f"Inverted map: {inv_map}")
+    maxkey = max(inv_map.keys())
+    print(f"Most freq {k}-mers - freq {maxkey} are")
+    print(inv_map[maxkey])
+
+
+
+    cmap = canonicalize_freq_map(map)
+    maxv = max(cmap.values())
+    print(maxv)
+    maxk = [(k,cmap[k]) for k in cmap.keys() if cmap[k] == maxv]
+    print(maxk)
+
+    highlight = [t[0] for t in maxk]
+    hlnbrs = [neighbors_lt(h, 1) for h in highlight]
+    hlnbrs = set.union(*hlnbrs)
+    hlnbrs_revcompl = set.union(hlnbrs, [reverse_complement(x) for x in hlnbrs])
+    
+    print_highlight(region, hlnbrs_revcompl)
+
+    highest = inv_map[maxkey]
+
+    
+
+    #print(f"Highest freq {k}-mers: {sorted(map.values(), reverse=True)[:10]}")
+
+  #print(freqs)
+
 
 
 

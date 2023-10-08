@@ -1,3 +1,5 @@
+import pytest
+
 def freq_map_kmers(text, k):
   n = len(text)
   freqs = {}
@@ -34,11 +36,13 @@ def pattern_match(text,pattern):
       starts.append(i)
   return starts
 
-#Clump Finding Problem: Find patterns forming clumps in a string.
-#  Input: A string Genome, and integers k, L, and t.
-#  Output: All distinct k-mers forming (L, t)-clumps in Genome.
+
 # Optimized version using sliding windows
 def find_clumps(text, k, L, t):
+  """Clump Finding Problem: Find patterns forming clumps in a string.
+        Input: A string Genome, and integers k, L, and t.
+        Output: All distinct k-mers forming (L, t)-clumps in Genome.
+  """
   n = len(text)
   clump_kmers = set()
   kmer_dict = {}
@@ -185,21 +189,64 @@ def frequent_words_with_mismatches_complements(text, k, d):
   """
   freq_map = {}
   n = len(text)
+  #print(f"text: {text}")
   for i in range(n-k+1):
     pattern = text[i:i+k]
     nbrs = neighbors_lt(pattern, d)
-    for nbr in nbrs:
-      freq_map[nbr] = freq_map.get(nbr,0) + 1
-      nbrc = reverse_complement(nbr)
-      freq_map[nbrc] = freq_map.get(nbrc,0) + 1
+    #print(f"kmer {pattern}")
 
+    patterns_incremented = set()
+    for nbr in nbrs:
+      if not nbr in patterns_incremented:
+        freq_map[nbr] = freq_map.get(nbr,0) + 1
+        #print(f"\tnbr {nbr} = {freq_map[nbr]}")
+        patterns_incremented.add(nbr)
+      nbrc = reverse_complement(nbr)
+      if not nbrc in patterns_incremented:
+        freq_map[nbrc] = freq_map.get(nbrc,0) + 1
+        #print(f"\tnbrc {nbrc} = {freq_map[nbrc]}")
+        patterns_incremented.add(nbrc)
+  
   max_freq = max(freq_map.values())
   max_freq_kmers = [kmer for kmer in freq_map if freq_map[kmer] == max_freq]
-  return max_freq_kmers
+
+  filtered = [max_freq_kmers[0]]
+  filtered_map = {max_freq_kmers[0]: max_freq}
+  #now we need to filter this to only unique kmers up to distance 
+  for kmer in max_freq_kmers[1:]:
+    add = True
+    for curr in filtered:
+      if hamming_distance(curr,kmer) <= d or reverse_complement(curr) == kmer:
+        add = False
+    if add:
+      filtered.append(kmer)
+      filtered_map[kmer] = max_freq
+
+  return filtered, filtered_map
+#  return max_freq_kmers, freq_map
+
+def canonicalize_word(word):
+  """Picks a canonical repr. between a word and its reverse complement"""
+  return min(word, reverse_complement(word))
+
+def canonicalize_freq_map(map):
+  for key,val in map.items():
+    revc = reverse_complement(key)
+    if val == -1 or map[revc] == -1:
+      continue
+    
+    canon = canonicalize_word(key)
+    other = reverse_complement(canon)
+    map[canon] += map[other]
+    map[other] = -1
+
+  for key, val in list(map.items()):
+    if val == -1:
+      del map[key]
+  return map
 
 def skew(genome):
-  """
-  """
+  """Yields the #G-#C skew at each position as an iterator"""
   skew_map = {'G': 1, 'C': -1, 'A': 0, 'T': 0} #contribution to skew of each base
   skews = []
   curr = 0
@@ -253,4 +300,42 @@ def format_iter(l):
 
 def print_iter(l):
   print(format_iter(l))
+
+def print_highlight(str, highlight):
+  for h in highlight:
+    str = str.replace(h, c("BOLD", h))
+  print(str)
+
+
+## TESTS
+def test_frequent_words_with_mismatches_complements():
+  string = 'ATAGCA'
+  (words, freqs) = frequent_words_with_mismatches_complements(string, k=2, d=1)
+  assert len(words) == 1
+
+  answer = ['AA']
+  answers = []
+  for ans in answer:
+    a = set.union(neighbors_lt(ans, d=1), set([reverse_complement(kmer) for kmer in ans]))
+    answers.append(a)
   
+  assert words[0] in answers[0]
+  #assert sorted(words) == ['AA']
+  assert freqs[words[0]] == 4
+  print(words[0])
+
+  #TODO: add all the testcases and make sure they actually work
+  # what if the order of words is different betw. expected and real
+
+  string = 'ACGTTGCATGTCGCATGATGCATGAGAGCT'
+  answer = ['ACAT','ATGT']
+  answers = [neighbors_lt(ans, d=1) for ans in answer]
+  (words, freqs) = frequent_words_with_mismatches_complements(string, k=4, d=1)
+  print(words)
+  print([(k,v) for (k,v) in freqs.items() if v == max(freqs.values())])
+
+  string = 'AAAAAAAAAA'
+
+
+if __name__ == '__main__':
+  pytest.main(["-s", __file__]) #-s to not suppress prints
