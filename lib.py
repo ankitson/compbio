@@ -197,6 +197,16 @@ def frequent_words_with_mismatches_complements(text, k, d):
   max_freq_kmers = [kmer for kmer in freq_map if freq_map[kmer] == max_freq]
   return max_freq_kmers
 
+def skew(genome):
+  """
+  """
+  skew_map = {'G': 1, 'C': -1, 'A': 0, 'T': 0} #contribution to skew of each base
+  skews = []
+  curr = 0
+  for char in genome:
+    curr += skew_map[char]
+    skews.append(curr)
+    yield curr
 
 ## FILE IO
 def write_temp(inp):

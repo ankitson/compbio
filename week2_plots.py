@@ -4,13 +4,14 @@ import pandas as pd
 import numpy as np
 
 import constants
+from lib import skew
 
 def get_counts_ecoli(nucleotide):
   if nucleotide not in ['A', 'T', 'G', 'C']:
       raise ValueError(f"Invalid nucleotide {nucleotide}")
   
   NUM_FRAGMENTS = 46
-  with open(constants.GENOMES['ecoli']) as f: ecoli = f.read().strip()
+  with open(constants.GENOMES['e_coli']) as f: ecoli = f.read().strip()
 
   npecoli = np.array(list(ecoli))
 
@@ -121,5 +122,28 @@ def graph_diff_counts_pct(b1,b2):
 
   return (fig, descr)
 
-def graph_test():
-  pass
+def graph_skew_diagram(genome_dataset, sample_freq=100):
+  skewg = skew(constants.genome(genome_dataset))
+  # Dont plot every point, sample uniformly
+  skew_pts = []
+  for i, val in enumerate(skewg):
+    if i%sample_freq == 0:
+      skew_pts.append(val)
+
+  fig = go.Figure()
+  fig.add_trace(go.Scatter(
+    x=sample_freq * np.arange(0, len(skew_pts)),
+    y=skew_pts,
+    mode='lines',
+    name='Skew',
+    line=dict(color='blue')
+  ))
+  fig.update_layout(
+    title=f'Skew Diagram for {genome_dataset}',
+    xaxis=dict(title='Position'),
+    yaxis=dict(title='Skew'),
+  )
+  descr = """This is the skew diagram, showing the cumulative `(# of G's - # of C's)` along the positions of the genome.
+  Since the difference is negative on the reverse half-strand and positive on the forward half-strand, the **minimum** corresponds to the position of *Ori* and the **maximum** corresponds to the position of *Ter*
+  """
+  return (fig, descr)

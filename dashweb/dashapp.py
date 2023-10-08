@@ -1,7 +1,16 @@
 from dash import Dash, html, dcc, callback, Output, Input
 import dash_bootstrap_components as dbc
-from week2_plots import graph_counts_pct, graph_counts_pct_shifted, graph_counts_raw, graph_test, graph_diff_counts_pct
 import plotly.express as px
+
+import constants
+
+from week2_plots import \
+  graph_counts_pct, \
+  graph_counts_pct_shifted, \
+  graph_counts_raw, \
+  graph_diff_counts_pct, \
+  graph_skew_diagram
+import constants
 
 def init_dash(server):
   """Setup the dash app as child of main flask app"""
@@ -18,9 +27,7 @@ def init_dash(server):
   return dash_app.server
 
 def build_layout():
-  #all available figures are here - not showing all.
-  #figure_select = ["Example", "Counts (Raw)", "Counts (Pct)", "Counts (Pct Base)", "Diff Counts", "Test"]
-  figure_select = ["Counts (Pct Base)", "Diff Counts", "Test"]
+  figure_select = [plot.value for plot in constants.ENABLED_PLOTS]
   return \
    dbc.Container([
       dbc.Row(html.H1(children='Bioinformatics I', style={'textAlign':'center'}),),
@@ -29,7 +36,8 @@ def build_layout():
         dbc.Col(dbc.Stack([
           dcc.RadioItems(options=["A","T","C","G"], value="G", id="baseradio1",  inline=True),
           dcc.RadioItems(options=["A","T","C","G"], value="C", id="baseradio2",  inline=True)
-        ])),
+        ]), width=2),
+        dbc.Col(dcc.Dropdown(options=constants.GENOMES_KEYS, value=constants.GENOMES_KEYS[0], id="genomeselect"))
       ]),
       dbc.Row([
         dbc.Col([
@@ -49,28 +57,37 @@ def init_callbacks(dash_app):
   @dash_app.callback(
     Output('graph-content', 'figure'),
     Output('graph-description', 'children'),
+    Output('baseradio1', 'style'),
     Output('baseradio2', 'style'),
+    Output("genomeselect", 'style'),
     Input('dropdown-selection', 'value'),
     Input("baseradio1", 'value'),
-    Input("baseradio2", 'value')
+    Input("baseradio2", 'value'),
+    Input("genomeselect", 'value')
   )
-  def update_graph(value, nvalue, nvalue2):
-    if value == 'Counts (Raw)':
+  def update_graph(value, nvalue, nvalue2, genome_dataset):
+    STYLE_HIDDEN = { 'display' : 'none' } 
+    STYLE_SHOW = { 'display' : 'block' }
+
+    base_select_style = STYLE_SHOW
+    base_select2_style = STYLE_HIDDEN
+    genome_select_style = STYLE_HIDDEN
+
+    if value == constants.Plots.COUNTS_RAW.value:
       (fig,descr) = graph_counts_raw(nucleotide=nvalue)
-    elif value == 'Counts (Pct)':
+    elif value == constants.Plots.COUNTS_PCT.value:
       (fig,descr) = graph_counts_pct(nucleotide=nvalue)
-    elif value == "Counts (Pct Base)":
+    elif value == constants.Plots.COUNTS_PCT_BASE.value:
       (fig,descr) = graph_counts_pct_shifted(nucleotide=nvalue)
-    elif value == "Test":
-      (fig,descr) = graph_test()
-    elif value == "Diff Counts":
+    elif value == constants.Plots.COUNTS_PCT_DIFF.value:
       (fig,descr) = graph_diff_counts_pct(nvalue, nvalue2)
+      base_select2_style = STYLE_SHOW
+    elif value == constants.Plots.SKEW.value:
+      (fig, descr) = graph_skew_diagram(genome_dataset)
+      genome_select_style = STYLE_SHOW
+      base_select_style = STYLE_HIDDEN
     else:
       (fig,descr) = (px.bar(x=[1,2,3],y=[1,2,3]), """This is an example <br/>""" )
     
-    style = { 'display' : 'none' } 
-    if value == "Diff Counts":
-      style = { 'display' : 'block' }
-
     fig.update_layout(height=559, margin=dict(l=0,t=40,r=0,b=0))
-    return (fig, descr, style)
+    return (fig, descr, base_select_style, base_select2_style, genome_select_style)
