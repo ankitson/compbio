@@ -1,5 +1,6 @@
 import pytest
 from lib import *
+import constants
 
 def test_week2():
   print_sep("Minimum Skew")
@@ -63,6 +64,13 @@ def test_week2():
   soln = frequent_words_with_mismatches_complements("TTTCATGCAAATGAAGAAAAAAGAATGGAATGTGTTTAAGAAAATGAAGAAGAAGAAGAATTTGAAGAATTTTGTTTCATTTAAGAAGAATGCATGTGAAGAAAATGCAGAAGAACATGAACAAATTTGAAGAAGAACATTTCAGAAAAGAATTTAATTTGAAGAACATGTGTGGAAAAGAACAGAAGAATGTTTTTTTGAAGAATTTAATTTCAGAAGAAAAAAAAAAAAGAA", k=5, d=3)
   print("exercise soln:")
   print_iter(soln)
+
+  print_sep("Epilogue: Find a DnaA Box in Salmonella enterica!!")
+  print("The skew diagram shows the minimum at around position 3,923,600")
+  salmonella = constants.genome('salmonella')
+  ori_cand = minimum_skew(salmonella)
+  print(f"Minimum skew position computed: {ori_cand}")
+
 
 
   print("all assertions passed!")
