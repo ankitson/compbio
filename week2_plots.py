@@ -3,12 +3,15 @@ import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 
+import constants
+
 def get_counts_ecoli(nucleotide):
   if nucleotide not in ['A', 'T', 'G', 'C']:
       raise ValueError(f"Invalid nucleotide {nucleotide}")
   
   NUM_FRAGMENTS = 46
-  ecoli = open('inputs/E_coli_genome.txt').read().strip()
+  with open(constants.GENOMES['ecoli']) as f: ecoli = f.read().strip()
+
   npecoli = np.array(list(ecoli))
 
   fragments = np.array_split(npecoli,NUM_FRAGMENTS)
