@@ -55,15 +55,15 @@ def test_week2():
   print_iter(soln)
 
   print_sep("Frequent words (k-mers) with mismatches and complements")
-
+  
   soln = frequent_words_with_mismatches_complements("ACGTTGCATGTCGCATGATGCATGAGAGCT", k=4, d=1)
   print("ACGTTGCATGTCGCATGATGCATGAGAGCT, k=4, d=1:")
-  print_iter(soln[0])
-  assert(sorted(soln[0]) == ['ACAT', 'ATGT'])
+  print_iter(soln)
+  assert(sorted(soln) == ['ACAT', 'ATGT'])
 
   soln = frequent_words_with_mismatches_complements("TTTCATGCAAATGAAGAAAAAAGAATGGAATGTGTTTAAGAAAATGAAGAAGAAGAAGAATTTGAAGAATTTTGTTTCATTTAAGAAGAATGCATGTGAAGAAAATGCAGAAGAACATGAACAAATTTGAAGAAGAACATTTCAGAAAAGAATTTAATTTGAAGAACATGTGTGGAAAAGAACAGAAGAATGTTTTTTTGAAGAATTTAATTTCAGAAGAAAAAAAAAAAAGAA", k=5, d=3)
   print("exercise soln:")
-  print_iter(soln[0])
+  print_iter(soln)
 
   print_sep("Epilogue: Find a DnaA Box in Salmonella enterica!!")
   print("The skew diagram shows the minimum at around position 3,923,600")
@@ -74,15 +74,9 @@ def test_week2():
 
   region = salmonella[ori_cand-100:ori_cand+100]
   for k in range(9,10):
-    freqs, map = frequent_words_with_mismatches_complements(region, k=k, d=1)
-    inv_map = {}
-    for k1, v1 in map.items():
-        inv_map[v1] = inv_map.get(v1, [])
-        inv_map[v1].append(k1)
-    #print(f"Inverted map: {inv_map}")
-    maxkey = max(inv_map.keys())
-    print(f"Most freq {k}-mers - freq {maxkey} are")
-    print(inv_map[maxkey])
+    freq_words, count = frequent_words_with_mismatches_complements(region, k=k, d=1, debug=True)
+    print(f"Most freq {k}-mers - freq {count} are")
+    print(freq_words)
 
 
 

@@ -1,3 +1,4 @@
+import itertools
 import pytest
 
 def freq_map_kmers(text, k):
@@ -180,142 +181,28 @@ def frequent_words_with_mismatches(text, k, d):
   max_freq = max(freq_map.values())
   max_freq_kmers = [kmer for kmer in freq_map if freq_map[kmer] == max_freq]
   return max_freq_kmers, max_freq
+    
+def frequent_words_with_mismatches_complements(text, k, d, debug=False):
+    """
+    Find the most frequent k-mers (with mismatches and reverse complements) in a DNA string.
+    O(4^k * (k + n))
+    """
+    kmers = [''.join(x) for x in itertools.product('ATGC', repeat=k)]
+    counts = {}
+    for kmer in kmers:
+        count_pattern = pattern_count_approx(text, kmer, d)
+        count_rc_pattern = pattern_count_approx(text, reverse_complement(kmer), d)
+        total_count = count_pattern + count_rc_pattern
+        counts[kmer] = total_count
 
-def fw3(text,k,d):
-  fwd_kmers, fwd_freq = frequent_words_with_mismatches(text, k, d)
-  rev_compl = reverse_complement(text)
-  bwd_kmers, bwd_freq = frequent_words_with_mismatches(reverse_complement(text), k, d)
+    max_count = max(counts.values())
+    max_freq_kmers = [kmer for kmer, count in counts.items() if count == max_count]
 
-  combined_freqs = {}
-  for kmer in fwd_kmers + bwd_kmers:
-    if kmer in fwd_kmers:
-      combined_freqs[kmer] = fwd_freq
+    if not debug:
+      return max_freq_kmers
     else:
-      combined_freqs[kmer] = bwd_freq
-    rc = reverse_complement(kmer)
-    if rc in fwd_kmers:
-      combined_freqs[rc] = fwd_freq + fwd_freq
-      combined_freqs[kmer] = combined_freqs[rc]
-    elif rc in bwd_kmers:
-      combined_freqs[rc] = bwd_freq + fwd_freq
-      combined_freqs[kmer] = combined_freqs[rc]
-  return combined_freqs
+      return (max_freq_kmers, max_count)
 
-def frequent_wordsmc2(text,k,d):
-  freq_map = {}
-  n = len(text)
-  for i in range(n-k+1):
-    pattern = text[i:i+k]
-    nbrs = neighbors_lt(pattern, d)
-    for nbr in nbrs:
-      freq_map[nbr] = freq_map.get(nbr,0) + 1
-  
-  #pattern = ATA
-  #kmer = ATT
-  #compl = AAT
-  
-
-  for kmer, freq in freq_map.items():
-    compl = reverse_complement(kmer) #AAT
-    if True: #compl != kmer:
-      for i in range(n-k+1):
-        pattern = text[i:i+k]
-        if hamming_distance(pattern, compl) <= d:
-          freq_map[kmer] += 1
-  
-      
-
-  # for i in range(n-k+1):
-  #   pattern = text[i:i+k]
-  #   cpattern = reverse_complement(text[i:i+k])
-  #   nbrs = neighbors_lt(cpattern, d)
-  #   for nbr in nbrs:
-  #     freq_map[reverse_complement(nbr)] = freq_map.get(reverse_complement(nbr),0) + 1
-  
-  rev_map = [(v, sorted([k for k in freq_map if freq_map[k] == v])) for v in sorted(set(freq_map.values()), reverse=True)]
-  return rev_map
-    
-
-def frequent_words_with_mismatches_complements(text, k, d):
-  """
-  Frequent Words with Mismatches and Reverse Complements Problem: Find the most frequent k-mers (with mismatches and reverse complements) in a string.
-    Input: A DNA string Text as well as integers k and d.
-    Output: All k-mers Pattern maximizing the sum Countd(Text, Pattern)+ Countd(Text, Pattern_rc) over all possible k-mers.
-  """
-  freq_map = {}
-  n = len(text)
-
-  #patt  = CGAC
-  #compl = GTCG
-
-  #[CG]
-  #nbrs = [CG: 1, GG: 1, AG: 1, TG: 1, CA: 1, CT: 1, CC: 1]
-  #r[GTCG] = r[GT]
-  #d([GT,CG] = 2)
-  #d([GT,GG] = 1) [GG: 2]
-  #d([GT,CT] = 1) [CT: 2]
-
-
-  #AAA
-  #
-
-  #Laws
-  # If pattern is in set, then pattern_revcompl is in set too
-  # because pattern in set => count(pattern, text) + count(pattern_revcompl, text) is maximized
-  # 
-  # 
-
-
-  fwd_kmers = set()
-  rev_kmers = set()
-  compl = reverse_complement(text)
-  for i in range(n-k+1):
-    pattern = text[i:i+k]
-    revp = compl[i:i+k]
-    rev_kmers = set.union(rev_kmers, neighbors_lt(revp, d))
-  
-  for i in range(n-k+1):
-    pattern = text[i:i+k]
-    fwd_kmers = neighbors_lt(pattern, d)
-    for kmer in fwd_kmers:
-      if kmer == 'ACTG':
-        pass
-      freq_map[kmer] = freq_map.get(kmer,0) + 1
-    for kmer in rev_kmers:
-      if kmer == 'ACTG':
-        pass
-      if not kmer in fwd_kmers and hamming_distance(pattern,kmer) <= d:
-        freq_map[kmer] = freq_map.get(kmer,0) + 1
-    
-  # for i in range(n-k+1):
-  #   pattern = text[i:i+k] #AA
-  #   patternc = compl[i:i+k]
-  #   kmers = neighbors_lt(pattern, d) #AA, AT, TA, AC, CA, AG, GA
-  #   compl_kmers = set([reverse_complement(k) for k in kmers])
-  #   kmers = set.union(kmers,compl_kmers)
-  #   print(f"Pattern: {pattern}")
-  #   print(f"Compl: {compl[i:i+k]}")
-  #   for kmer in kmers:
-  #     print(f"Kmer: {kmer}")
-  #     print(f"\tbefore: {freq_map}")
-  #     freq_map[kmer] = freq_map.get(kmer,0) + 1
-  #     for j in range(n-k+1):
-  #       pattc = compl[j:j+k]
-  #       if hamming_distance(pattc,kmer) <= d:
-  #         freq_map[kmer] = freq_map.get(kmer,0) + 1
-    
-  
-  #     print(f"\tafter: {freq_map}")
-  
-  rev_map = [(v, [k for k in freq_map if freq_map[k] == v]) for v in sorted(set(freq_map.values()), reverse=True)]
-#  for (i,(v,ks)) in enumerate(rev_map):
- #   kcompls = [reverse_complement(k) for k in ks]
- #   newks = list(set.union(set([ks]),set([kcompls])))
- #   rev_map[i] = (v,newks)
-
-  freq_words = rev_map[0][1]
-  return rev_map,freq_words
-    #print(f"kmer {pattern}")
 
 def canonicalize_word(word):
   """Picks a canonical repr. between a word and its reverse complement"""
@@ -401,96 +288,36 @@ def print_highlight(str, highlight):
 
 ## TESTS
 def test_frequent_words_with_mismatches_complements():
-  string = 'AAA'
-  
+  input = ('AAA',2,1) #compl = 'TTT'
+  f = frequent_words_with_mismatches_complements(*input)
+  assert sorted(f) == ['AT', 'TA']
 
-  #(r,f) = frequent_words_with_mismatches_complements(string,k=2,d=1)
-  #print(r)
-  #assert sorted(f) == ['AT', 'TA']
+  input = ('AGTCAGTC',4,2) #compl = 'GACTGACT'
+  f = frequent_words_with_mismatches_complements(*input)
+  assert sorted(f) == ['AATT', 'GGCC']
 
-  #print(frequent_wordsmc2(string,k=2,d=1))
-  # print(r)
-  # print(f)
-
-  string = 'AGTCAGTC'
-  print(fw3(string,k=4,d=2))
-  assert False == True
-  #compl = 'GACTGACT'
-  #print(frequent_wordsmc2(string,k=4,d=2))
-  #(r,f) = frequent_words_with_mismatches_complements(string,k=4,d=2)
-  #print(r)
-  #assert sorted(f) == ['AATT', 'GGCC']
-
-  #string = 'AATTAATTGGTAGGTAGGTA'
-  #print(frequent_wordsmc2(string, k=4, d=0))
-
-  string = 'ATA'
-  print(frequent_wordsmc2(string,k=3,d=1))
-
- 
-
-
-  string = 'AATTAATTGGTAGGTAGGTA'
-  #compl = 'TACCTACCTACCAATTAATT'
-  print(reverse_complement(string))
-  (r,f) = frequent_words_with_mismatches_complements(string,k=4,d=0)
-  print(r)
-  # print(f)
+  input = ('AATTAATTGGTAGGTAGGTA',4,0) #compl = 'TACCTACCTACCAATTAATT'
+  f = frequent_words_with_mismatches_complements(*input)
   assert sorted(f) == ['AATT']
 
-  #TODO: wrong
-  string = 'ATA'
-  print(reverse_complement(string))
-  (r,f) = frequent_words_with_mismatches_complements(string,k=3,d=1)
-  print(sorted(f))
+  input = ('ATA',3,1) #compl = 'TAT'
+  f = frequent_words_with_mismatches_complements(*input)
+  assert sorted(f) == ['AAA','AAT','ACA','AGA','ATA','ATC',
+                       'ATG','ATT','CAT','CTA','GAT','GTA',
+                       'TAA','TAC','TAG','TAT','TCT','TGT',
+                       'TTA','TTT']
 
+  input = ('AAT',3,0) #compl = 'ATT'
+  f = frequent_words_with_mismatches_complements(*input)
+  assert sorted(f) == ['AAT','ATT']
 
-  #sorted_f = sorted(f.items(), key=lambda x: x[1], reverse=True)
-  
-  # freqs = {}
-  # for k, v in sorted_f:
-  #   if v not in freqs:
-  #     freqs[v] = set()
-  #   freqs[v].add(k)
-  # for k, v in freqs.items():
-  #   print(f"{k}: {v}")
-  # string = 'ATAGCA'
-  # k = 2
-  # d = 1
-  # (words, freqs) = frequent_words_with_mismatches_complements(string, k=k, d=d)
+  input = ('TAGCG',2,1) #compl = 'CGCTA'
+  f = frequent_words_with_mismatches_complements(*input)
+  assert sorted(f) == ['CA','CC','GG','TG']
 
-
-  # print(freqs)
-  # assert len(words) == 1
-
-  # answer = ['AA']
-  # answers = []
-  # for ans in answer:
-  #   s1 = neighbors_lt(ans, d=d)
-  #   s2 = set([reverse_complement(kmer) for kmer in s1])
-  #   union = set.union(s1,s2)
-  #   answers.append(union)
-  # #print(answers)
-
-  # print(frequent_words_with_mismatches_complements("AAAAAAAAAA",k=2,d=1))
-  
-  # assert words[0] in answers[0]
-  # #assert sorted(words) == ['AA']
-  # assert freqs[words[0]] == 4
-  # print(words[0])
-
-  #TODO: add all the testcases and make sure they actually work
-  # what if the order of words is different betw. expected and real
-
-  # string = 'ACGTTGCATGTCGCATGATGCATGAGAGCT'
-  # answer = ['ACAT','ATGT']
-  # answers = [neighbors_lt(ans, d=1) for ans in answer]
-  # (words, freqs) = frequent_words_with_mismatches_complements(string, k=4, d=1)
-  # print(words)
-  # print([(k,v) for (k,v) in freqs.items() if v == max(freqs.values())])
-
-  # string = 'AAAAAAAAAA'
-
+  input = ('ACGTTGCATGTCGCATGATGCATGAGAGCT',4,1) #compl = 'AGCTCTCATGCATCATGCGACATGCAACGT'
+  f = frequent_words_with_mismatches_complements(*input)
+  assert sorted(f) == ['ACAT','ATGT']
 
 if __name__ == '__main__':
   pytest.main(["-s", __file__]) #-s to not suppress prints
