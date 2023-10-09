@@ -1,7 +1,8 @@
 import itertools
+from typing import Iterable, Iterator, Tuple
 import pytest
 
-def freq_map_kmers(text, k):
+def freq_map_kmers(text: str, k: int) -> list[str]:
   n = len(text)
   freqs = {}
   for i in range(n-k+1):
@@ -11,7 +12,7 @@ def freq_map_kmers(text, k):
 
 #1.2 - 12
 #output all most frequent k-mers in text
-def frequent_words(text, k):
+def frequent_words(text: str, k: int) -> list[str]:
   freq_map = freq_map_kmers(text, k)
   max_freq = max(freq_map.values())
   freq_words = []
@@ -30,16 +31,15 @@ def complement(text: str) -> str:
 def reverse_complement(text: str) -> str:
   return complement(reverse(text))
 
-def pattern_match(text,pattern):
+def pattern_match(text: str,pattern: str) -> list[int]:
   starts = []
   for i in range(len(text) - len(pattern) + 1):
     if text[i:i+len(pattern)] == pattern:
       starts.append(i)
   return starts
 
-
 # Optimized version using sliding windows
-def find_clumps(text, k, L, t):
+def find_clumps(text: str, k: int, L: int, t: int) -> list[str]:
   """Clump Finding Problem: Find patterns forming clumps in a string.
         Input: A string Genome, and integers k, L, and t.
         Output: All distinct k-mers forming (L, t)-clumps in Genome.
@@ -69,7 +69,7 @@ def find_clumps(text, k, L, t):
 
   return sorted(list(clump_kmers))
 
-def minimum_skew(text):
+def minimum_skew(text: str) -> list[int]:
   skew_map = {'G': 1, 'C': -1, 'A': 0, 'T': 0} #contribution to skew of each base
   min_skew = float('inf')
   indices = []
@@ -86,7 +86,7 @@ def minimum_skew(text):
   return indices
 
 
-def hamming_distance(s1, s2):
+def hamming_distance(s1: str, s2: str) -> int:
   """
   Hamming Distance Problem: Compute the Hamming distance between two strings.
     Input: Two strings of equal length.
@@ -101,7 +101,7 @@ def hamming_distance(s1, s2):
   dist += max(l1,l2) - min(l1,l2)
   return dist
 
-def pattern_match_approx(text,pattern,d):
+def pattern_match_approx(text: str,pattern: str,d: int) -> list[int]:
   """
   Approximate Pattern Matching Problem: Find all approximate occurrences of a pattern in a string.
     * Input: Strings Pattern and Text along with an integer d.
@@ -113,7 +113,7 @@ def pattern_match_approx(text,pattern,d):
       starts.append(i)
   return starts
 
-def pattern_count_approx(text, pattern, d):
+def pattern_count_approx(text: str, pattern: str, d: int) -> list[int]:
   n = len(text)
   k = len(pattern)
   count = 0
@@ -124,7 +124,7 @@ def pattern_count_approx(text, pattern, d):
   return count
 
 
-def frequent_words_approx(text, k, d):
+def frequent_words_approx(text: str, k: int, d: int) -> dict[str, int]:
   """
   Frequent Words with Mismatches Problem: Find the most frequent k-mers with mismatches in a string.
     Input: A string Text as well as integers k and d.
@@ -139,7 +139,7 @@ def frequent_words_approx(text, k, d):
     return freqs
 
 #TODO: What is the runtime of this function? How can it be optimized?
-def neighbors_lt(pattern, d):
+def neighbors_lt(pattern: str, d: int) -> set[str]:
   """
   Neighbors: Find the d-neighborhood of a string (all dist < d).
     Input: A string Pattern and an integer d.
@@ -165,12 +165,12 @@ def neighbors_lt(pattern, d):
       nbrs.add(pattern[0] + snbr)
   return nbrs
 
-def neighbor_lt_complement(pattern, d):
+def neighbor_lt_complement(pattern: str, d: int) -> set[str]:
   nbrs = neighbors_lt(pattern, d)
   rcnbrs = neighbors_lt(reverse_complement(pattern),d)
   return set.union(nbrs,rcnbrs)
 
-def frequent_words_with_mismatches(text, k, d):
+def frequent_words_with_mismatches(text: str, k: int, d: int) -> Tuple[list[str],int]:
   """
   Frequent Words with Mismatches Problem.
     Input: A string Text as well as integers k and d. (You may assume k ≤ 12 and d ≤ 3.)
@@ -187,7 +187,7 @@ def frequent_words_with_mismatches(text, k, d):
   max_freq_kmers = [kmer for kmer in freq_map if freq_map[kmer] == max_freq]
   return max_freq_kmers, max_freq
     
-def frequent_words_with_mismatches_complements(text, k, d, debug=False):
+def frequent_words_with_mismatches_complements(text: str, k: int, d: int, debug=False) -> Tuple[list[str],int]:
     """
     Find the most frequent k-mers (with mismatches and reverse complements) in a DNA string.
     O(4^k * (k + n))
@@ -230,11 +230,11 @@ def frequent_words_with_mismatches_complements(text, k, d, debug=False):
 #     else:
 #       return (max_freq_kmers, max_count)
 
-def canonicalize_word(word):
+def canonicalize_word(word: str) -> str:
   """Picks a canonical repr. between a word and its reverse complement"""
   return min(word, reverse_complement(word))
 
-def canonicalize_freq_map(map):
+def canonicalize_freq_map(map: dict[str,int]) -> dict[str,int]:
   for key,val in map.items():
     revc = reverse_complement(key)
     if val == -1 or map[revc] == -1:
@@ -250,7 +250,7 @@ def canonicalize_freq_map(map):
       del map[key]
   return map
 
-def gc_skew_iter(genome: str):
+def gc_skew_iter(genome: str) -> Iterator[int]:
   """Yields the #G-#C skew at each position as an iterator"""
   skew_map = {'G': 1, 'C': -1, 'A': 0, 'T': 0} #contribution to skew of each base
   skews = []
@@ -261,7 +261,7 @@ def gc_skew_iter(genome: str):
     yield curr
 
 ## FILE IO
-def write_temp(inp):
+def write_temp(inp: Iterator) -> None:
   out = open('temp.txt','w')
   if hasattr(inp, '__iter__'):
     text = format_iter(inp)
@@ -272,7 +272,7 @@ def write_temp(inp):
   return out.close()
 
 ## CONSOLE IO
-def c(color, text):
+def c(color: str, text: str) -> str:
   color_dict = {
     "PURPLE": "\033[95m",
     "CYAN": "\033[96m",
@@ -291,7 +291,7 @@ def c(color, text):
     if shortk == color or k == color:
       return v + text + color_dict["END"]
 
-def print_sep(text=None):
+def print_sep(text:str=None) -> None:
   SEP_LEN = 100
   if text:
     num_char = len(text)
@@ -300,13 +300,13 @@ def print_sep(text=None):
   else:
     print(c("RED","-"*100))
 
-def format_iter(l):
+def format_iter(l: Iterator) -> str:
   return ' '.join([str(x) for x in l])
 
-def print_iter(l):
+def print_iter(l: Iterator) -> None:
   print(format_iter(l))
 
-def print_highlight(str, highlight):
+def print_highlight(str: str, highlight: Iterable):
   for h in highlight:
     str = str.replace(h, c("BOLD", h))
   print(str)
@@ -344,6 +344,8 @@ def test_frequent_words_with_mismatches_complements():
   input = ('ACGTTGCATGTCGCATGATGCATGAGAGCT',4,1) #compl = 'AGCTCTCATGCATCATGCGACATGCAACGT'
   f = frequent_words_with_mismatches_complements(*input)
   assert sorted(f) == ['ACAT','ATGT']
+
+  print("all assertions passed!")
 
 if __name__ == '__main__':
   pytest.main(["-s", __file__]) #-s to not suppress prints
