@@ -165,6 +165,11 @@ def neighbors_lt(pattern, d):
       nbrs.add(pattern[0] + snbr)
   return nbrs
 
+def neighbor_lt_complement(pattern, d):
+  nbrs = neighbors_lt(pattern, d)
+  rcnbrs = neighbors_lt(reverse_complement(pattern),d)
+  return set.union(nbrs,rcnbrs)
+
 def frequent_words_with_mismatches(text, k, d):
   """
   Frequent Words with Mismatches Problem.
@@ -203,6 +208,27 @@ def frequent_words_with_mismatches_complements(text, k, d, debug=False):
     else:
       return (max_freq_kmers, max_count)
 
+# Does NOT work in all cases
+# def optimized_freq(text, k, d, debug=False):
+#     """
+#     Find the most frequent k-mers (with mismatches and reverse complements) in a DNA string using an optimized approach.
+#     """
+#     counts = {}
+#     for i in range(len(text) - k + 1):
+#         pattern = text[i:i + k]
+#         neighbors = neighbors_lt(pattern, d)
+#         for neighbor in neighbors:
+#             count_pattern = pattern_count_approx(text, neighbor, d)
+#             count_rc_pattern = pattern_count_approx(text, reverse_complement(neighbor), d)
+#             total_count = count_pattern + count_rc_pattern
+#             counts[neighbor] = total_count
+
+#     max_count = max(counts.values())
+#     max_freq_kmers = [kmer for kmer, count in counts.items() if count == max_count]
+#     if not debug:
+#       return max_freq_kmers
+#     else:
+#       return (max_freq_kmers, max_count)
 
 def canonicalize_word(word):
   """Picks a canonical repr. between a word and its reverse complement"""
@@ -224,7 +250,7 @@ def canonicalize_freq_map(map):
       del map[key]
   return map
 
-def skew(genome):
+def gc_skew_iter(genome: str):
   """Yields the #G-#C skew at each position as an iterator"""
   skew_map = {'G': 1, 'C': -1, 'A': 0, 'T': 0} #contribution to skew of each base
   skews = []

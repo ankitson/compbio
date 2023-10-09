@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 import constants
-from lib import skew
+from lib import gc_skew_iter
 
 def get_counts_ecoli(nucleotide):
   if nucleotide not in ['A', 'T', 'G', 'C']:
@@ -123,7 +123,7 @@ def graph_diff_counts_pct(b1,b2):
   return (fig, descr)
 
 def graph_skew_diagram(genome_dataset, sample_freq=100):
-  skewg = skew(constants.genome(genome_dataset))
+  skewg = gc_skew_iter(constants.genome(genome_dataset))
   # Dont plot every point, sample uniformly
   skew_pts = []
   for i, val in enumerate(skewg):

@@ -1,4 +1,6 @@
 import pytest
+import math
+
 from lib import *
 import constants
 
@@ -73,35 +75,67 @@ def test_week2():
   ori_cand = ori_cands[0]
 
   region = salmonella[ori_cand-100:ori_cand+100]
-  for k in range(9,10):
-    freq_words, count = frequent_words_with_mismatches_complements(region, k=k, d=1, debug=True)
-    print(f"Most freq {k}-mers - freq {count} are")
-    print(freq_words)
+  compute = False
+  if compute:
+    for k in range(7,15):
+      freq_words, count = frequent_words_with_mismatches_complements(region, k=k, d=1, debug=True)
+      print(f"Most freq {k}-mers - freq {count} are")
+      print(freq_words)
+  
 
+  freq_10 = ['AAACGTATCG', 'AAACGTGCCG', 'AATAGCGCCG', 'AATTGGCAGT', 'AATTGCGCCG', 'AATGGCGCCG', 'AATGCCAATG', 'AATCGCGCCG', 'AAGATCTTCA', 'AAGGCGCCGG', 'AAGGCCTTCA', 'AACGTACGGC', 'AACGCACCGC', 'ATAATCAGCC', 'ATAGAAACGG', 'ATAGAAGGGG', 'ATTATCAGCT', 'ATTGGCATTC', 'ATTGGCAGTG', 'ATTGCGCCGC', 'ATCGCGCCGA', 'AGAAGCAGAA', 'AGACATTCAG', 'AGACGCGGAA', 'AGACCTTCCG', 'AGCTGATAAT', 'ACTGCCAATT', 'ACGTACGGCG', 'ACGGCGCTGG', 'ACGGCGCCGT', 'ACGCACCGCG', 'ACGCCGAAAC', 'TACGGCGCCG', 'TACCGCGGTA', 'TTTTCGGCGC', 'TTTCGGCGCG', 'TTTCCGGCGC', 'TTGGCATTCG', 'TTGGCAGTGG', 'TTGCGGCGCA', 'TTGCGCCGCA', 'TTCTGCTTCT', 'TTCGGCGCGA', 'TTCCGCGTCT', 'TTCCGCGGAA', 'TGAAGATCTT', 'TGAAGGCCTT', 'TGATAATCAG', 'TGATTATCAG', 'TGATGATCAG', 'TGATCATCAG', 'TGCGGCGCAA', 'TGCGCCGCAA', 'TGCCAATTCC', 'TGCCAATGGC', 'TCAATTGCGC', 'TCTGCGGCGC', 'TCGGCGCGAT', 'TCGCGCCGAA', 'GAATGTCTTC', 'GAATGCCAAT', 'GAAGATCTTC', 'GAAGACATTC', 'GAAGGTCTCC', 'GAAGGCCTTC', 'GATAATCAGC', 'GATTATCAGC', 'GATGATCAGC', 'GATCATCAGC', 'GTTTCTGCGC', 'GTTTCGGCGT', 'GTTGCGGCGC', 'GGAATTGGCA', 'GGAGACCTTC', 'GGTTTCGGCG', 'GGCTGATTAT', 'GGCGCAATTG', 'GGCGCTATTG', 'GGCGCTGGAG', 'GGCGCGATTG', 'GGCGCCATTG', 'GGCGCCGGCG', 'GCTGATAATC', 'GCTGATTATC', 'GCTGATGATC', 'GCTGATCATC', 'GCGGTGCGTT', 'GCGGCGCAAT', 'GCGCAATTGA', 'GCGCAGAAAC', 'GCGCTAGCGC', 'GCGCGATTGG', 'GCGCCGAAAA', 'GCGCCGGAAA', 'GCGCCGGCGC', 'GCGCCGCAAC', 'GCGCCGCAGA', 'GCCATTGGCA', 'GCCGTACGTT', 'CAATAGCGCC', 'CAATTGCGCC', 'CAATGGCGCC', 'CAATCGCGCC', 'CATTGGCATT', 'CACTGCCAAT', 'CTTACCGCGG', 'CTGAATGTCT', 'CTGATAATCA', 'CTGATTATCA', 'CTGATGATCA', 'CTGATCATCA', 'CTCCAGCGCC', 'CGAATGCCAA', 'CGATACGTTT', 'CGTTTCTGCG', 'CGTTCCGCGG', 'CGGAAGGTCT', 'CGGCACGTTT', 'CGGCGCAATT', 'CGGCGCTATT', 'CGGCGCGATT', 'CGGCGCCATT', 'CGGCGCCGTA', 'CGGCGCCGGG', 'CGCAGAAACG', 'CGCGGTGCGT', 'CGCGCCGAAA', 'CGCCGAAACC', 'CGCCGTACGT', 'CGCCGGCGCC', 'CCAATCGCGC', 'CCAGCGCCGT', 'CCACTGCCAA', 'CCGTTTCTAT', 'CCGGCGCCTT', 'CCGGCGCCGG', 'CCGCGGAACG', 'CCGCGGTAAG', 'CCCGGCGCCG', 'CCCCTTCTAT']
+  print_sep(f"{len(freq_10)} 10-mers within 1  distance, at frequency 2")
+  print(f"exact matches:")
+  print_highlight(region, freq_10)
+  print(f"matches with nbrs and complements:")
+  all_sets = set().union(*[neighbor_lt_complement(kmer, 1) for kmer in freq_10])
+  print_highlight(region, all_sets)
+  
+  freq_9 = ['ATGGCGCCG', 'TTGCGCCGC', 'TTCCGGCGC', 'GTTTCCGCG', 'CGCCGGCGC' 
+            'CGGCGCCAT', 'GCGGCGCAA', 'GCGCCGGAA', 'CGCGGAAAC', 'GCGCCGGCG'] #compls
+  print_sep(f"{len(freq_9)} 9-mers within 1  distance, at frequency 3")
+  print(f"exact matches:")
+  print_highlight(region, freq_9)
+  print(f"matches with nbrs and complements:")
+  all_sets = set().union(*[neighbor_lt_complement(kmer, 1) for kmer in freq_9])
+  print_highlight(region, all_sets)
+  
+  freq_8 = ['TACGGCGC', 'TTTCGGCG', 'TTGCGCCG', 'TGGCGCCG', 'GCGCCGTA', 'CGGCGCAA', 'CGGCGCCA', 'CGCCGAAA', 'CGCCGGCG']
+  print_sep(f"{len(freq_8)} 8-mers within 1 distance, at frequency 4")
+  print(f"exact matches:")
+  print_highlight(region, freq_8) #'TTTCGGCG'
+  print(f"exact match with neighbors + complements of exact match")
+  print_highlight(region, neighbor_lt_complement('TTTCGGCG', 1))
+  print(f"all matches with nbrs and complements:")
+  all_sets = set().union(*[neighbor_lt_complement(kmer, 1) for kmer in freq_8])
+  print_highlight(region, all_sets)
 
+  print_sep("Week 2 Quiz")
+  s = 'CTTGAAGTGGACCTCTAGTTCCTCTACAAAGAACAGGTTGACCTGTCGCGAAG'
+  t = 'ATGCCTTACCTAGATGCAATGACGGACGTATTCCTTTTGCCTCAACGGCTCCT'
+  print(f"Hamming distance = {hamming_distance(s,t)}")
 
-    cmap = canonicalize_freq_map(map)
-    maxv = max(cmap.values())
-    print(maxv)
-    maxk = [(k,cmap[k]) for k in cmap.keys() if cmap[k] == maxv]
-    print(maxk)
+  s = 'GATACACTTCCCGAGTAGGTACTG'
+  skews = enumerate(list(gc_skew_iter(s)))
+  min_skew = min(skews, key=lambda t: t[1])
+  min_skew_index = min_skew[0]+1
+  print(f"Min skew at position {min_skew_index}")
 
-    highlight = [t[0] for t in maxk]
-    hlnbrs = [neighbors_lt(h, 1) for h in highlight]
-    hlnbrs = set.union(*hlnbrs)
-    hlnbrs_revcompl = set.union(hlnbrs, [reverse_complement(x) for x in hlnbrs])
-    
-    print_highlight(region, hlnbrs_revcompl)
+  soln = pattern_count_approx("CATGCCATTCGCATTGTCCCAGTGA", "CCC", d=2)
+  print(f"Pattern count (CATGCCATTCGCATTGTCCCAGTGA, CCC, d=2) = {soln}")
+  
 
-    highest = inv_map[maxkey]
-
-    
-
-    #print(f"Highest freq {k}-mers: {sorted(map.values(), reverse=True)[:10]}")
-
-  #print(freqs)
-
-
+  print(f"How many 4-mers are in the 3-neighborhood of ACGT?")
+  soln = 1 + 4*3 + math.comb(4,2) * 3 * 3 + math.comb(4,3) * 3 * 3 * 3
+  print(soln)
+  nbrs = neighbors_lt('ACGT', 3)
+  assert soln == len(nbrs)
+  
+  print(f"How many 5-mers are in the 2-neighborhood of pattern TGCAT?")
+  soln = 1 + 5 *3 + math.comb(5,2) * 3 * 3
+  print(soln) # 5 choose 0 -> dont mutate. 1 kmer.  5 choose 1 -> mutate only 1. (5 choose 1) * 3. 5 choose 2 -> mutatle both. (5 choose 2) * 3 * 3
+  nbrs = neighbors_lt("TGCAT", 2)
+  assert soln == len(nbrs)
 
 
   print("all assertions passed!")
