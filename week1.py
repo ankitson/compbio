@@ -1,5 +1,6 @@
 import pytest
 from lib import *
+from util import *
 import constants
 
 def test_week1():

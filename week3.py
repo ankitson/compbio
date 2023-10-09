@@ -2,6 +2,7 @@ import pytest
 import math
 
 from lib import *
+from util import *
 import constants
 
 def test_week3():
@@ -32,7 +33,7 @@ def test_week3():
   rows = [row.strip() for row in motifs.split('\n')]
   input_matrix = np.array([list(row) for row in rows])
 
-  print("Scoring: ")
+  print("Scoring this matrix: ")
   print(input_matrix)
   print(score_motif_profile_entropy(profile_motif_matrix(input_matrix)))
 
