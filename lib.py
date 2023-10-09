@@ -114,15 +114,7 @@ def pattern_match_approx(text: str,pattern: str,d: int) -> list[int]:
   return starts
 
 def pattern_count_approx(text: str, pattern: str, d: int) -> list[int]:
-  n = len(text)
-  k = len(pattern)
-  count = 0
-  for i in range(n-k+1):
-    window = text[i:i+k]
-    if hamming_distance(window, pattern) <= d:
-      count += 1
-  return count
-
+  return len(pattern_match_approx(text,pattern,d))
 
 def frequent_words_approx(text: str, k: int, d: int) -> dict[str, int]:
   """
@@ -260,6 +252,19 @@ def gc_skew_iter(genome: str) -> Iterator[int]:
     skews.append(curr)
     yield curr
 
+def motif_enumerate_bruteforce(strings, k, d):
+  motifs = set()
+  for string in strings:
+    n = len(string)
+    for i in range(n-k+1):
+      pattern = string[i:i+k]
+      dnbrs = neighbors_lt(pattern, d)
+      for approx_pattern in dnbrs:
+        appears_all = all([pattern_count_approx(string2,approx_pattern,d) > 0 for string2 in strings])
+        if appears_all:
+          motifs.add(approx_pattern)
+  return list(motifs)
+
 ## FILE IO
 def write_temp(inp: Iterator) -> None:
   out = open('temp.txt','w')
@@ -345,6 +350,11 @@ def test_frequent_words_with_mismatches_complements():
   f = frequent_words_with_mismatches_complements(*input)
   assert sorted(f) == ['ACAT','ATGT']
 
+  assert(
+    sorted(motif_enumerate_bruteforce(['ATTTGGC','TGCCTTA','CGGTATC', 'GAAAATT'],k=3,d=1)) ==
+    ['ATA','ATT','GTT','TTT']
+  )
+  
   print("all assertions passed!")
 
 if __name__ == '__main__':
