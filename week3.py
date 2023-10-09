@@ -17,6 +17,25 @@ def test_week3():
     k=5,d=2
   )))
 
+  print_sep("Motif Matrix Entropy")
+
+  motifs="""TCGGGGGTTTTT
+  CCGGTGACTTAC
+  ACGGGGATTTTC
+  TTGGGGACTTTT
+  AAGGGGACTTCC
+  TTGGGGACTTCC
+  TCGGGGATTCAT
+  TCGGGGATTCCT
+  TAGGGGAACTAC
+  TCGGGTATAACC"""
+  rows = [row.strip() for row in motifs.split('\n')]
+  input_matrix = np.array([list(row) for row in rows])
+
+  print("Scoring: ")
+  print(input_matrix)
+  print(score_motif_profile_entropy(profile_motif_matrix(input_matrix)))
+
   print("all assertions passed!")
 
 if __name__ == '__main__':

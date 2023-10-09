@@ -1,6 +1,10 @@
 import itertools
+import math
 from typing import Iterable, Iterator, Tuple
+
 import pytest
+import numpy as np
+from numpy import ndarray
 
 def freq_map_kmers(text: str, k: int) -> list[str]:
   n = len(text)
@@ -252,6 +256,12 @@ def gc_skew_iter(genome: str) -> Iterator[int]:
     skews.append(curr)
     yield curr
 
+#each string has n-k kmers
+#each kmer has sum( (k choose i) * 3^i ) d-nbrs ~= 4^d
+#for each nbr, check all strings
+#for each string,nbr, pattern_count takes O(s*k) time s=length of string
+
+#runtime = O(n * 4^d * s * k)
 def motif_enumerate_bruteforce(strings, k, d):
   motifs = set()
   for string in strings:
@@ -264,6 +274,22 @@ def motif_enumerate_bruteforce(strings, k, d):
         if appears_all:
           motifs.add(approx_pattern)
   return list(motifs)
+
+def profile_motif_matrix(motifs: ndarray) -> ndarray:
+  count_matrix = np.zeros((4, motifs.shape[1]), dtype=int)
+  # Iterate over each column of the motif matrix and count the occurrences of each nucleotide
+  for j in range(motifs.shape[1]):
+    for i, nucleotide in enumerate(['A', 'C', 'G', 'T']):
+        count_matrix[i, j] = np.sum(motifs[:, j] == nucleotide)
+  prob_matrix = count_matrix / np.sum(count_matrix, axis=0)
+  return prob_matrix
+
+def score_motif_profile_entropy(profile: ndarray) -> float:
+  for i in range(profile.shape[0]):
+    for j in range(profile.shape[1]):
+      profile[i, j] = 0 if profile[i,j] == 0 else -1 * profile[i, j] * math.log(profile[i,j], 2)
+  sum = np.sum(profile[:,:])
+  return sum
 
 ## FILE IO
 def write_temp(inp: Iterator) -> None:
@@ -354,7 +380,7 @@ def test_frequent_words_with_mismatches_complements():
     sorted(motif_enumerate_bruteforce(['ATTTGGC','TGCCTTA','CGGTATC', 'GAAAATT'],k=3,d=1)) ==
     ['ATA','ATT','GTT','TTT']
   )
-  
+
   print("all assertions passed!")
 
 if __name__ == '__main__':
