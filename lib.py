@@ -179,7 +179,62 @@ def frequent_words_with_mismatches(text, k, d):
       freq_map[nbr] = freq_map.get(nbr,0) + 1
   max_freq = max(freq_map.values())
   max_freq_kmers = [kmer for kmer in freq_map if freq_map[kmer] == max_freq]
-  return max_freq_kmers
+  return max_freq_kmers, max_freq
+
+def fw3(text,k,d):
+  fwd_kmers, fwd_freq = frequent_words_with_mismatches(text, k, d)
+  rev_compl = reverse_complement(text)
+  bwd_kmers, bwd_freq = frequent_words_with_mismatches(reverse_complement(text), k, d)
+
+  combined_freqs = {}
+  for kmer in fwd_kmers + bwd_kmers:
+    if kmer in fwd_kmers:
+      combined_freqs[kmer] = fwd_freq
+    else:
+      combined_freqs[kmer] = bwd_freq
+    rc = reverse_complement(kmer)
+    if rc in fwd_kmers:
+      combined_freqs[rc] = fwd_freq + fwd_freq
+      combined_freqs[kmer] = combined_freqs[rc]
+    elif rc in bwd_kmers:
+      combined_freqs[rc] = bwd_freq + fwd_freq
+      combined_freqs[kmer] = combined_freqs[rc]
+  return combined_freqs
+
+def frequent_wordsmc2(text,k,d):
+  freq_map = {}
+  n = len(text)
+  for i in range(n-k+1):
+    pattern = text[i:i+k]
+    nbrs = neighbors_lt(pattern, d)
+    for nbr in nbrs:
+      freq_map[nbr] = freq_map.get(nbr,0) + 1
+  
+  #pattern = ATA
+  #kmer = ATT
+  #compl = AAT
+  
+
+  for kmer, freq in freq_map.items():
+    compl = reverse_complement(kmer) #AAT
+    if True: #compl != kmer:
+      for i in range(n-k+1):
+        pattern = text[i:i+k]
+        if hamming_distance(pattern, compl) <= d:
+          freq_map[kmer] += 1
+  
+      
+
+  # for i in range(n-k+1):
+  #   pattern = text[i:i+k]
+  #   cpattern = reverse_complement(text[i:i+k])
+  #   nbrs = neighbors_lt(cpattern, d)
+  #   for nbr in nbrs:
+  #     freq_map[reverse_complement(nbr)] = freq_map.get(reverse_complement(nbr),0) + 1
+  
+  rev_map = [(v, sorted([k for k in freq_map if freq_map[k] == v])) for v in sorted(set(freq_map.values()), reverse=True)]
+  return rev_map
+    
 
 def frequent_words_with_mismatches_complements(text, k, d):
   """
@@ -190,24 +245,74 @@ def frequent_words_with_mismatches_complements(text, k, d):
   freq_map = {}
   n = len(text)
 
+  #patt  = CGAC
+  #compl = GTCG
+
+  #[CG]
+  #nbrs = [CG: 1, GG: 1, AG: 1, TG: 1, CA: 1, CT: 1, CC: 1]
+  #r[GTCG] = r[GT]
+  #d([GT,CG] = 2)
+  #d([GT,GG] = 1) [GG: 2]
+  #d([GT,CT] = 1) [CT: 2]
+
+
+  #AAA
+  #
+
+  #Laws
+  # If pattern is in set, then pattern_revcompl is in set too
+  # because pattern in set => count(pattern, text) + count(pattern_revcompl, text) is maximized
+  # 
+  # 
+
+
+  fwd_kmers = set()
+  rev_kmers = set()
   compl = reverse_complement(text)
   for i in range(n-k+1):
-    pattern = text[i:i+k] #AA
-    patternc = compl[i:i+k]
-    kmers = neighbors_lt(pattern, d) #AA, AT, TA, AC, CA, AG, GA
-    print(f"Pattern: {pattern}")
-    print(f"Compl: {compl[i:i+k]}")
-    for kmer in kmers:
-      print(f"Kmer: {kmer}")
-      print(f"\tbefore: {freq_map}")
+    pattern = text[i:i+k]
+    revp = compl[i:i+k]
+    rev_kmers = set.union(rev_kmers, neighbors_lt(revp, d))
+  
+  for i in range(n-k+1):
+    pattern = text[i:i+k]
+    fwd_kmers = neighbors_lt(pattern, d)
+    for kmer in fwd_kmers:
+      if kmer == 'ACTG':
+        pass
       freq_map[kmer] = freq_map.get(kmer,0) + 1
-      for j in range(n-k+1):
-        pattc = compl[j:j+k]
-        if hamming_distance(pattc,kmer) <= d:
-          freq_map[kmer] = freq_map.get(kmer,0) + 1
-      print(f"\tafter: {freq_map}")
+    for kmer in rev_kmers:
+      if kmer == 'ACTG':
+        pass
+      if not kmer in fwd_kmers and hamming_distance(pattern,kmer) <= d:
+        freq_map[kmer] = freq_map.get(kmer,0) + 1
+    
+  # for i in range(n-k+1):
+  #   pattern = text[i:i+k] #AA
+  #   patternc = compl[i:i+k]
+  #   kmers = neighbors_lt(pattern, d) #AA, AT, TA, AC, CA, AG, GA
+  #   compl_kmers = set([reverse_complement(k) for k in kmers])
+  #   kmers = set.union(kmers,compl_kmers)
+  #   print(f"Pattern: {pattern}")
+  #   print(f"Compl: {compl[i:i+k]}")
+  #   for kmer in kmers:
+  #     print(f"Kmer: {kmer}")
+  #     print(f"\tbefore: {freq_map}")
+  #     freq_map[kmer] = freq_map.get(kmer,0) + 1
+  #     for j in range(n-k+1):
+  #       pattc = compl[j:j+k]
+  #       if hamming_distance(pattc,kmer) <= d:
+  #         freq_map[kmer] = freq_map.get(kmer,0) + 1
+    
+  
+  #     print(f"\tafter: {freq_map}")
   
   rev_map = [(v, [k for k in freq_map if freq_map[k] == v]) for v in sorted(set(freq_map.values()), reverse=True)]
+#  for (i,(v,ks)) in enumerate(rev_map):
+ #   kcompls = [reverse_complement(k) for k in ks]
+ #   newks = list(set.union(set([ks]),set([kcompls])))
+ #   rev_map[i] = (v,newks)
+
   freq_words = rev_map[0][1]
   return rev_map,freq_words
     #print(f"kmer {pattern}")
@@ -297,18 +402,36 @@ def print_highlight(str, highlight):
 ## TESTS
 def test_frequent_words_with_mismatches_complements():
   string = 'AAA'
-  (r,f) = frequent_words_with_mismatches_complements(string,k=2,d=1)
-  assert sorted(f) == ['AT', 'TA']
+  
+
+  #(r,f) = frequent_words_with_mismatches_complements(string,k=2,d=1)
+  #print(r)
+  #assert sorted(f) == ['AT', 'TA']
+
+  #print(frequent_wordsmc2(string,k=2,d=1))
   # print(r)
   # print(f)
 
   string = 'AGTCAGTC'
-  (r,f) = frequent_words_with_mismatches_complements(string,k=4,d=2)
-  assert sorted(f) == ['AATT', 'GGCC']
-  # print(r)
-  # print(f)
+  print(fw3(string,k=4,d=2))
+  assert False == True
+  #compl = 'GACTGACT'
+  #print(frequent_wordsmc2(string,k=4,d=2))
+  #(r,f) = frequent_words_with_mismatches_complements(string,k=4,d=2)
+  #print(r)
+  #assert sorted(f) == ['AATT', 'GGCC']
+
+  #string = 'AATTAATTGGTAGGTAGGTA'
+  #print(frequent_wordsmc2(string, k=4, d=0))
+
+  string = 'ATA'
+  print(frequent_wordsmc2(string,k=3,d=1))
+
+ 
+
 
   string = 'AATTAATTGGTAGGTAGGTA'
+  #compl = 'TACCTACCTACCAATTAATT'
   print(reverse_complement(string))
   (r,f) = frequent_words_with_mismatches_complements(string,k=4,d=0)
   print(r)

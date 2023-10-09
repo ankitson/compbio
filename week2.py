@@ -42,16 +42,16 @@ def test_week2():
   write_temp(soln)
 
   print_sep("Frequent words (k-mers) with mismatches")
-  soln = frequent_words_with_mismatches("ACGTTGCATGTCGCATGATGCATGAGAGCT", k=4, d=1)
+  soln = frequent_words_with_mismatches("ACGTTGCATGTCGCATGATGCATGAGAGCT", k=4, d=1)[0]
   print_iter(soln)
   assert(sorted(soln) == ['ATGC', 'ATGT', 'GATG'])
 
-  assert(sorted(frequent_words_with_mismatches("AGGT", k=2, d=1)) == ['GG'])
-  assert(sorted(frequent_words_with_mismatches("AGGGT", k=2, d=0)) == ['GG'])
-  assert(sorted(frequent_words_with_mismatches("AGGCGG", k=3, d=0)) == ['AGG','CGG','GCG','GGC'])
+  assert(sorted(frequent_words_with_mismatches("AGGT", k=2, d=1)[0]) == ['GG'])
+  assert(sorted(frequent_words_with_mismatches("AGGGT", k=2, d=0)[0]) == ['GG'])
+  assert(sorted(frequent_words_with_mismatches("AGGCGG", k=3, d=0)[0]) == ['AGG','CGG','GCG','GGC'])
 
   print("exercise soln:")
-  soln = frequent_words_with_mismatches("AACGAACGCTACTAAACGCTAGTAGTATGAACTATGAAAACGAAGCAAGCAAGCTGAAGTATGAAAACGGTACTAGTACTAGTAAACGTGAAAACGGTAAACGCTAAACGAAGCGTAAACGAACGAAGCAAGCTGAAAAGCAACGCTAGTAAAGCCTAGTATGAATGAAGTAAAGCCTAAACGCTAGTAGTAAACGTGAAAACGAACGGTAGTACTATGAACTAAACGAACGAAGCAAGCTGAACTACTATGAAGTATGAAAACGAAGCTGAAAAGCAAGCAAGCAAGCAACGAACGAACGAAGCGTATGAAAAGCAAGCTGAAGTA", k=5, d=3)
+  soln = frequent_words_with_mismatches("AACGAACGCTACTAAACGCTAGTAGTATGAACTATGAAAACGAAGCAAGCAAGCTGAAGTATGAAAACGGTACTAGTACTAGTAAACGTGAAAACGGTAAACGCTAAACGAAGCGTAAACGAACGAAGCAAGCTGAAAAGCAACGCTAGTAAAGCCTAGTATGAATGAAGTAAAGCCTAAACGCTAGTAGTAAACGTGAAAACGAACGGTAGTACTATGAACTAAACGAACGAAGCAAGCTGAACTACTATGAAGTATGAAAACGAAGCTGAAAAGCAAGCAAGCAAGCAACGAACGAACGAAGCGTATGAAAAGCAAGCTGAAGTA", k=5, d=3)[0]
   print_iter(soln)
 
   print_sep("Frequent words (k-mers) with mismatches and complements")
