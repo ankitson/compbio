@@ -260,7 +260,6 @@ def gc_skew_iter(genome: str) -> Iterator[int]:
 #each kmer has sum( (k choose i) * 3^i ) d-nbrs ~= 4^d
 #for each nbr, check all strings
 #for each string,nbr, pattern_count takes O(s*k) time s=length of string
-
 #runtime = O(n * 4^d * s * k)
 def motif_enumerate_bruteforce(strings, k, d):
   motifs = set()
@@ -291,7 +290,28 @@ def score_motif_profile_entropy(profile: ndarray) -> float:
   sum = np.sum(profile[:,:])
   return sum
 
+def median_string(texts, k):
+  """Computes the median string
+Input: An integer k, followed by a space-separated collection of strings Dna.
+Output: A k-mer Pattern that minimizes d(Pattern, Dna) among all possible choices of k-mers. (If there are multiple such strings Pattern, then you may return any one.)
+  """
+  #ACGT - NO
 
+  all_kmers = [''.join(x) for x in itertools.product('ACGT', repeat=k)]
+  min_d = float('inf')
+  best_kmers = []
+  for kmer in all_kmers:
+    d = 0
+    for text in texts:
+      patterns = [text[i:i+k] for i in range(len(text)-k+1)]
+      dist = min([hamming_distance(kmer,pattern) for pattern in patterns])
+      d += dist
+    if d < min_d:
+      min_d = d
+      best_kmers = [kmer]
+    elif d == min_d:
+      best_kmers.append(kmer)
+  return best_kmers[0]
 
 
 ## TESTS
@@ -327,12 +347,32 @@ def test_frequent_words_with_mismatches_complements():
   f = frequent_words_with_mismatches_complements(*input)
   assert sorted(f) == ['ACAT','ATGT']
 
+def test_hamming_distance():
+  assert hamming_distance('ACT','AGT') == 1
+  assert hamming_distance('ACT','AG') == 2
+  assert hamming_distance('ACGT','ACG') == 1
+  assert hamming_distance('ACT','CAT') == 2
+
+def test_motif_enumerate():
   assert(
     sorted(motif_enumerate_bruteforce(['ATTTGGC','TGCCTTA','CGGTATC', 'GAAAATT'],k=3,d=1)) ==
     ['ATA','ATT','GTT','TTT']
   )
 
-  print("all assertions passed!")
+def test_median_string():
+  soln = median_string(['AAATTGACGCAT','GACGACCACGTT','CGTCAGCGCCTG','GCTGAGCACCGG','AGTTCGGGACAG'], k=3)
+  assert(soln == 'ACG' or soln=='GAC')
+
+  soln = median_string(['ACGT','ACGT','ACGT'], k=3)
+  assert(soln == 'ACG' or soln=='CGT')
+
+  soln = median_string(['ATA','ACA','AGA','AAT','AAC'], k=3)
+  assert(soln == 'AAA')
+
+  soln = median_string(['AAG','AAT'], k=3)
+  assert (soln == 'AAG' or soln == 'AAT')
+
 
 if __name__ == '__main__':
   pytest.main(["-s", __file__]) #-s to not suppress prints
+  print("all tests passed!")
