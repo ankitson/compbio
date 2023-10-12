@@ -297,14 +297,13 @@ def score_motif_profile_entropy(profile: ndarray) -> float:
   sum = np.sum(profile[:,:])
   return sum
 
-def median_string(texts, k):
-  """Computes the median string
+def median_strings(texts, k):
+  """Computes all median strings
 Input: An integer k, followed by a space-separated collection of strings Dna.
-Output: A k-mer Pattern that minimizes d(Pattern, Dna) among all possible choices of k-mers. (If there are multiple such strings Pattern, then you may return any one.)
+Output: A k-mer Pattern that minimizes d(Pattern, Dna) among all possible choices of k-mers.
   """
   all_kmers = [''.join(x) for x in itertools.product(constants.BASES, repeat=k)]
-  min_d = float('inf')
-  best_kmers = []
+  min_d, best_kmers = float('inf'), []
   for kmer in all_kmers:
     d = 0
     for text in texts:
@@ -312,11 +311,10 @@ Output: A k-mer Pattern that minimizes d(Pattern, Dna) among all possible choice
       dist = min([hamming_distance(kmer,pattern) for pattern in patterns])
       d += dist
     if d < min_d:
-      min_d = d
-      best_kmers = [kmer]
+      min_d, best_kmers = d, [kmer]
     elif d == min_d:
       best_kmers.append(kmer)
-  return best_kmers[0]
+  return sorted(best_kmers)
 
 def profile_most_probable_kmer(text: str, profile_df: pd.DataFrame, k: int):
   """Profile-most Probable k-mer Problem: Find a Profile-most probable k-mer in a string.
@@ -412,20 +410,20 @@ def test_motif_enumerate():
   )
 
 def test_median_string():
-  soln = median_string(['AAATTGACGCAT','GACGACCACGTT','CGTCAGCGCCTG','GCTGAGCACCGG','AGTTCGGGACAG'], k=3)
-  assert(soln == 'ACG' or soln=='GAC')
+  soln = median_strings(['AAATTGACGCAT','GACGACCACGTT','CGTCAGCGCCTG','GCTGAGCACCGG','AGTTCGGGACAG'], k=3)
+  assert(soln == ['GAC'])
 
-  soln = median_string(['ACGT','ACGT','ACGT'], k=3)
-  assert(soln == 'ACG' or soln=='CGT')
+  soln = median_strings(['ACGT','ACGT','ACGT'], k=3)
+  assert(soln == ['ACG', 'CGT'])
 
-  soln = median_string(['ATA','ACA','AGA','AAT','AAC'], k=3)
-  assert(soln == 'AAA')
+  soln = median_strings(['ATA','ACA','AGA','AAT','AAC'], k=3)
+  assert(soln == ['AAA'])
 
-  soln = median_string(['AAG','AAT'], k=3)
-  assert (soln == 'AAG' or soln == 'AAT')
+  soln = median_strings(['AAG','AAT'], k=3)
+  assert (soln == ['AAG', 'AAT'])
 
-  soln = median_string(['ATTTGGC','TGCCTTA','CGGTATC', 'GAAAATT'], k=3)
-  assert soln in ['ATA','ATT','GTT','TTT']
+  soln = median_strings(['ATTTGGC','TGCCTTA','CGGTATC', 'GAAAATT'], k=3)
+  assert (soln == ['ATT'])
 
 def test_profile_most_probable_kmer():
   text = 'ACCTGTTTATTGCCTAAGTTCCGAACAAACCCAATATAGCCCGAGGGCCT'
