@@ -4,7 +4,9 @@ from typing import Iterable, Iterator, Tuple
 
 import pytest
 import numpy as np
+import pandas as pd
 from numpy import ndarray
+import constants
 
 def freq_map_kmers(text: str, k: int) -> list[str]:
   n = len(text)
@@ -29,8 +31,7 @@ def reverse(text: str) -> str:
   return text[::-1]
 
 def complement(text: str) -> str:
-  compls = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
-  return text.translate(str.maketrans(compls))
+  return text.translate(str.maketrans(constants.BASES_COMPLEMENTS))
 
 def reverse_complement(text: str) -> str:
   return complement(reverse(text))
@@ -274,14 +275,20 @@ def motif_enumerate_bruteforce(strings, k, d):
           motifs.add(approx_pattern)
   return list(motifs)
 
-def profile_motif_matrix(motifs: ndarray) -> ndarray:
+def profile_matrix_as_dataframe(matrix: ndarray) -> pd.DataFrame:
+  """The rows of matrix must be in order of BASES - A,C,G,T"""
+  assert(matrix.shape[0] == 4)
+  return pd.DataFrame(matrix, index=constants.BASES)
+
+def profile_motif_matrix(motifs: ndarray) -> pd.DataFrame:
   count_matrix = np.zeros((4, motifs.shape[1]), dtype=int)
   # Iterate over each column of the motif matrix and count the occurrences of each nucleotide
   for j in range(motifs.shape[1]):
-    for i, nucleotide in enumerate(['A', 'C', 'G', 'T']):
+    for i, nucleotide in enumerate(constants.BASES):
         count_matrix[i, j] = np.sum(motifs[:, j] == nucleotide)
   prob_matrix = count_matrix / np.sum(count_matrix, axis=0)
-  return prob_matrix
+  labeled_matrix = pd.DataFrame(prob_matrix, index=constants.BASES)
+  return labeled_matrix
 
 def score_motif_profile_entropy(profile: ndarray) -> float:
   for i in range(profile.shape[0]):
@@ -295,9 +302,7 @@ def median_string(texts, k):
 Input: An integer k, followed by a space-separated collection of strings Dna.
 Output: A k-mer Pattern that minimizes d(Pattern, Dna) among all possible choices of k-mers. (If there are multiple such strings Pattern, then you may return any one.)
   """
-  #ACGT - NO
-
-  all_kmers = [''.join(x) for x in itertools.product('ACGT', repeat=k)]
+  all_kmers = [''.join(x) for x in itertools.product(constants.BASES, repeat=k)]
   min_d = float('inf')
   best_kmers = []
   for kmer in all_kmers:
@@ -313,6 +318,20 @@ Output: A k-mer Pattern that minimizes d(Pattern, Dna) among all possible choice
       best_kmers.append(kmer)
   return best_kmers[0]
 
+def profile_most_probable_kmer(text: str, profile_df: pd.DataFrame, k: int):
+  """Profile-most Probable k-mer Problem: Find a Profile-most probable k-mer in a string.
+    Input: A string text, an integer k, and a 4 × k dataframe profile_df.
+    Output: A Profile-most probable k-mer in Text.
+  """
+  n = len(text)
+  best_prob,best_kmer = 0, None
+  for i in range(n-k+1):
+    pattern = text[i:i+k]
+    prob_list = [profile_df.loc[c,pi] for (pi,c) in enumerate(pattern)]
+    prob = np.prod(prob_list)
+    if prob > best_prob:
+      best_prob,best_kmer = prob,pattern
+  return best_kmer
 
 ## TESTS
 def test_frequent_words_with_mismatches_complements():
@@ -372,6 +391,20 @@ def test_median_string():
   soln = median_string(['AAG','AAT'], k=3)
   assert (soln == 'AAG' or soln == 'AAT')
 
+  soln = median_string(['ATTTGGC','TGCCTTA','CGGTATC', 'GAAAATT'], k=3)
+  assert soln in ['ATA','ATT','GTT','TTT']
+
+def test_profile_most_probable_kmer():
+  text = 'ACCTGTTTATTGCCTAAGTTCCGAACAAACCCAATATAGCCCGAGGGCCT'
+  k = 5
+  profile_matrix = np.array([
+    [0.2,0.2,0.3,0.2,0.3], #A
+    [0.4,0.3,0.1,0.5,0.1], #C
+    [0.3,0.3,0.5,0.2,0.4], #G
+    [0.1,0.2,0.1,0.1,0.2], #T
+  ])
+  profile_df = profile_matrix_as_dataframe(profile_matrix)
+  assert (profile_most_probable_kmer(text,profile_df,k) == 'CCGAG')
 
 if __name__ == '__main__':
   pytest.main(["-s", __file__]) #-s to not suppress prints

@@ -5,7 +5,8 @@ def init_app():
   """Contruct core Flask application."""
   app = Flask(__name__, 
               static_folder='../static',
-              instance_relative_config=False)
+              instance_relative_config=False,
+              template_folder='../templates')
 
   with app.app_context():
     from . import routes

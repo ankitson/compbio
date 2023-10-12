@@ -8,6 +8,9 @@ GENOMES = {
 }
 GENOMES_KEYS = list(GENOMES.keys())
 
+BASES = ['A','C','G','T']
+BASES_COMPLEMENTS = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+
 class Plots(Enum):
     COUNTS_RAW = 'Counts'
     COUNTS_PCT = 'Counts (%)'
