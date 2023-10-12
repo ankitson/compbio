@@ -324,7 +324,7 @@ def profile_most_probable_kmer(text: str, profile_df: pd.DataFrame, k: int):
     Output: A Profile-most probable k-mer in Text.
   """
   n = len(text)
-  best_prob,best_kmer = 0, None
+  best_prob,best_kmer = 0, text[:k] #if all prob are 0 then any kmer is best
   for i in range(n-k+1):
     pattern = text[i:i+k]
     prob_list = [profile_df.loc[c,pi] for (pi,c) in enumerate(pattern)]
@@ -332,6 +332,39 @@ def profile_most_probable_kmer(text: str, profile_df: pd.DataFrame, k: int):
     if prob > best_prob:
       best_prob,best_kmer = prob,pattern
   return best_kmer
+
+def greedy_motif_search(texts: list[str],k: int,t: int) -> ndarray:
+  """Greedy Motif Search
+    Input: Integers k and t, followed by a space-separated collection of strings Dna.
+    Output: A collection of strings BestMotifs resulting from applying GreedyMotifSearch(Dna, k, t). If at any step you find more than one Profile-most probable k-mer in a given string, use the one occurring first.
+  """
+
+  def score(motifs):
+    matrix = np.zeros((len(constants.BASES), k), dtype=int)
+    for kmer in motifs:
+      for j in range(k):
+        i = constants.BASES.index(kmer[j])
+        matrix[i,j] += 1
+    
+    total = 0
+    for j in range(k):
+      m = 0
+      for i in range(len(constants.BASES)):
+        if m < matrix[i,j]:
+          m = matrix[i,j]
+      total += (len(constants.BASES)-m)
+    return total
+
+  n = len(texts[0])
+  best_motifs = np.array([seq[:k] for seq in texts])
+  for motif in [texts[0][i:i+k] for i in range(n-k+1)]:
+    motifs = np.array([motif])
+    for j in range(1,t):
+      profile = profile_motif_matrix(np.array([list(row) for row in motifs])) 
+      motifs = np.append(motifs, profile_most_probable_kmer(texts[j], profile, k))
+    if score(motifs) < score(best_motifs):
+      best_motifs = motifs
+  return best_motifs
 
 ## TESTS
 def test_frequent_words_with_mismatches_complements():
@@ -405,6 +438,13 @@ def test_profile_most_probable_kmer():
   ])
   profile_df = profile_matrix_as_dataframe(profile_matrix)
   assert (profile_most_probable_kmer(text,profile_df,k) == 'CCGAG')
+
+def test_greedy_motif_search():
+  print()
+  input = (['GGCGTTCAGGCA','AAGAATCAGTCA','CAAGGAGTTCGC','CACGTCAATCAC','CAATAATATTCG'],3,5)
+  soln = greedy_motif_search(*input)
+  print(soln)
+  assert np.array_equal(soln, np.array(['CAG','CAG','CAA','CAA','CAA']))
 
 if __name__ == '__main__':
   pytest.main(["-s", __file__]) #-s to not suppress prints
