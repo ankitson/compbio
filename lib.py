@@ -86,8 +86,6 @@ def minimum_skew(text: str) -> list[int]:
       min_skew = skew
     elif skew == min_skew:
       indices.append(i+1)
-    else:
-      pass
   return indices
 
 
@@ -280,12 +278,15 @@ def profile_matrix_as_dataframe(matrix: ndarray) -> pd.DataFrame:
   assert(matrix.shape[0] == 4)
   return pd.DataFrame(matrix, index=constants.BASES)
 
-def profile_motif_matrix(motifs: ndarray) -> pd.DataFrame:
-  count_matrix = np.zeros((4, motifs.shape[1]), dtype=int)
+def profile_motif_matrix(motifs: ndarray, pseudo_counts=False) -> pd.DataFrame:
+  count_matrix = (
+    np.ones((4, motifs.shape[1]), dtype=int) if pseudo_counts 
+    else np.zeros((4, motifs.shape[1]), dtype=int)
+  )
   # Iterate over each column of the motif matrix and count the occurrences of each nucleotide
   for j in range(motifs.shape[1]):
     for i, nucleotide in enumerate(constants.BASES):
-        count_matrix[i, j] = np.sum(motifs[:, j] == nucleotide)
+        count_matrix[i, j] += np.sum(motifs[:, j] == nucleotide)
   prob_matrix = count_matrix / np.sum(count_matrix, axis=0)
   labeled_matrix = pd.DataFrame(prob_matrix, index=constants.BASES)
   return labeled_matrix
@@ -318,11 +319,12 @@ Output: A k-mer Pattern that minimizes d(Pattern, Dna) among all possible choice
 
 def profile_most_probable_kmer(text: str, profile_df: pd.DataFrame, k: int):
   """Profile-most Probable k-mer Problem: Find a Profile-most probable k-mer in a string.
+  Ties are broken by returning the first most probable k-mer
     Input: A string text, an integer k, and a 4 × k dataframe profile_df.
     Output: A Profile-most probable k-mer in Text.
   """
   n = len(text)
-  best_prob,best_kmer = 0, text[:k] #if all prob are 0 then any kmer is best
+  best_prob,best_kmer = 0, text[:k]
   for i in range(n-k+1):
     pattern = text[i:i+k]
     prob_list = [profile_df.loc[c,pi] for (pi,c) in enumerate(pattern)]
@@ -331,14 +333,17 @@ def profile_most_probable_kmer(text: str, profile_df: pd.DataFrame, k: int):
       best_prob,best_kmer = prob,pattern
   return best_kmer
 
-def greedy_motif_search(texts: list[str],k: int,t: int) -> ndarray:
+def greedy_motif_search(texts: list[str],k: int,t: int, pseudo_counts=True) -> ndarray:
   """Greedy Motif Search
     Input: Integers k and t, followed by a space-separated collection of strings Dna.
     Output: A collection of strings BestMotifs resulting from applying GreedyMotifSearch(Dna, k, t). If at any step you find more than one Profile-most probable k-mer in a given string, use the one occurring first.
   """
 
   def score(motifs):
-    matrix = np.zeros((len(constants.BASES), k), dtype=int)
+    matrix = (
+      np.ones((len(constants.BASES), k), dtype=int) if pseudo_counts 
+      else np.zeros((len(constants.BASES), k), dtype=int)
+    )
     for kmer in motifs:
       for j in range(k):
         i = constants.BASES.index(kmer[j])
@@ -358,7 +363,7 @@ def greedy_motif_search(texts: list[str],k: int,t: int) -> ndarray:
   for motif in [texts[0][i:i+k] for i in range(n-k+1)]:
     motifs = np.array([motif])
     for j in range(1,t):
-      profile = profile_motif_matrix(np.array([list(row) for row in motifs])) 
+      profile = profile_motif_matrix(np.array([list(row) for row in motifs]),pseudo_counts) 
       motifs = np.append(motifs, profile_most_probable_kmer(texts[j], profile, k))
     if score(motifs) < score(best_motifs):
       best_motifs = motifs
@@ -440,9 +445,13 @@ def test_profile_most_probable_kmer():
 def test_greedy_motif_search():
   print()
   input = (['GGCGTTCAGGCA','AAGAATCAGTCA','CAAGGAGTTCGC','CACGTCAATCAC','CAATAATATTCG'],3,5)
-  soln = greedy_motif_search(*input)
-  print(soln)
-  assert np.array_equal(soln, np.array(['CAG','CAG','CAA','CAA','CAA']))
+  soln = greedy_motif_search(*input,pseudo_counts=False)
+  assert (list(soln) == ['CAG','CAG','CAA','CAA','CAA'])
+
+  input = (['GGCGTTCAGGCA','AAGAATCAGTCA','CAAGGAGTTCGC','CACGTCAATCAC','CAATAATATTCG'],3,5)
+  soln = greedy_motif_search(*input, pseudo_counts=True)
+  assert (list(soln) == ['TTC','ATC','TTC','ATC','TTC'])
+
 
 if __name__ == '__main__':
   pytest.main(["-s", __file__]) #-s to not suppress prints
