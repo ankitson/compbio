@@ -387,7 +387,7 @@ def randomized_motif_search(texts, k, pseudo_counts=True, iterations=1000, debug
       motifs.append(kmer)
     motifs = np.array(motifs)
     current_score = score(motifs)
-    if debug: 
+    if debug and i%50 == 0: 
       print(f"Chose collection of motifs with score {current_score}:")
       print_highlight_motifs(texts, [''.join(kmer) for kmer in motifs], color="RED")
     while True:
@@ -399,7 +399,7 @@ def randomized_motif_search(texts, k, pseudo_counts=True, iterations=1000, debug
         current_score = new_score
       else:
         break
-    if debug:
+    if debug and i%50 == 0:
       print_sep()
       print(f"Iterated to improve motifs with score {current_score}")
       print_highlight_motifs(texts, [''.join(kmer) for kmer in motifs], color="RED")
