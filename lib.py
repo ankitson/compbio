@@ -278,7 +278,10 @@ def profile_matrix_as_dataframe(matrix: ndarray) -> pd.DataFrame:
   assert(matrix.shape[0] == 4)
   return pd.DataFrame(matrix, index=constants.BASES)
 
-def profile_motif_matrix(motifs: ndarray, pseudo_counts=False) -> pd.DataFrame:
+def count_motif_matrix(motifs: ndarray, pseudo_counts=False) -> pd.DataFrame:
+  """Count the number of bases at each position across the given motifs
+  Input: motifs is a 4xN ndarray, pseudo_counts will add 1 to each count for non-zero probabilities
+  """
   count_matrix = (
     np.ones((4, motifs.shape[1]), dtype=int) if pseudo_counts 
     else np.zeros((4, motifs.shape[1]), dtype=int)
@@ -287,6 +290,10 @@ def profile_motif_matrix(motifs: ndarray, pseudo_counts=False) -> pd.DataFrame:
   for j in range(motifs.shape[1]):
     for i, nucleotide in enumerate(constants.BASES):
         count_matrix[i, j] += np.sum(motifs[:, j] == nucleotide)
+  return count_matrix
+
+def profile_motif_matrix(motifs: ndarray, pseudo_counts=False) -> pd.DataFrame:
+  count_matrix = count_motif_matrix(motifs, pseudo_counts)
   prob_matrix = count_matrix / np.sum(count_matrix, axis=0)
   labeled_matrix = pd.DataFrame(prob_matrix, index=constants.BASES)
   return labeled_matrix
@@ -338,35 +345,27 @@ def greedy_motif_search(texts: list[str],k: int,t: int, pseudo_counts=True) -> n
     Input: Integers k and t, followed by a space-separated collection of strings Dna.
     Output: A collection of strings BestMotifs resulting from applying GreedyMotifSearch(Dna, k, t). If at any step you find more than one Profile-most probable k-mer in a given string, use the one occurring first.
   """
-
+  
   def score(motifs):
-    matrix = (
-      np.ones((len(constants.BASES), k), dtype=int) if pseudo_counts 
-      else np.zeros((len(constants.BASES), k), dtype=int)
-    )
-    for kmer in motifs:
-      for j in range(k):
-        i = constants.BASES.index(kmer[j])
-        matrix[i,j] += 1
-    
-    total = 0
-    for j in range(k):
-      m = 0
-      for i in range(len(constants.BASES)):
-        if m < matrix[i,j]:
-          m = matrix[i,j]
-      total += (len(constants.BASES)-m)
+    matrix = count_motif_matrix(motifs,pseudo_counts)
+    max_counts = np.max(matrix, axis=0)
+    total = np.sum(len(constants.BASES)-max_counts)
     return total
 
   n = len(texts[0])
-  best_motifs = np.array([seq[:k] for seq in texts])
+  best_motifs = np.array([list(seq[:k]) for seq in texts])
   for motif in [texts[0][i:i+k] for i in range(n-k+1)]:
-    motifs = np.array([motif])
+    motifs = np.array([list(motif)])
     for j in range(1,t):
-      profile = profile_motif_matrix(np.array([list(row) for row in motifs]),pseudo_counts) 
-      motifs = np.append(motifs, profile_most_probable_kmer(texts[j], profile, k))
+      profile = profile_motif_matrix(motifs,pseudo_counts) 
+      kmers = np.array(list(profile_most_probable_kmer(texts[j], profile, k)))
+      motifs = np.vstack((motifs, kmers))
     if score(motifs) < score(best_motifs):
       best_motifs = motifs
+  
+  best_motifs_1d = [''.join(row) for row in best_motifs]
+  return best_motifs_1d
+
   return best_motifs
 
 ## TESTS
