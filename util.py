@@ -46,7 +46,13 @@ def format_iter(l: Iterator) -> str:
 def print_iter(l: Iterator) -> None:
   print(format_iter(l))
 
-def print_highlight(str: str, highlight: Iterable):
+def print_highlight(str: str, highlight: Iterable, color="BOLD"):
   for h in highlight:
     str = str.replace(h, c("BOLD", h))
   print(str)
+
+def print_highlight_motifs(motifs: Iterable, highlights: Iterable, color="BOLD"):
+  for (motif,highlight) in zip(motifs,highlights):
+    motif = motif.replace(highlight, c(color, highlight))
+    print(motif)
+  

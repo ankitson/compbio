@@ -1,5 +1,6 @@
 import itertools
 import math
+import random
 from typing import Iterable, Iterator, Tuple
 
 import pytest
@@ -7,6 +8,7 @@ import numpy as np
 import pandas as pd
 from numpy import ndarray
 import constants
+from util import print_highlight_motifs, print_sep
 
 def freq_map_kmers(text: str, k: int) -> list[str]:
   n = len(text)
@@ -340,7 +342,7 @@ def profile_most_probable_kmer(text: str, profile_df: pd.DataFrame, k: int):
       best_prob,best_kmer = prob,pattern
   return best_kmer
 
-def greedy_motif_search(texts: list[str],k: int,t: int, pseudo_counts=True) -> ndarray:
+def greedy_motif_search(texts: list[str],k: int, pseudo_counts=True) -> ndarray:
   """Greedy Motif Search
     Input: Integers k and t, followed by a space-separated collection of strings Dna.
     Output: A collection of strings BestMotifs resulting from applying GreedyMotifSearch(Dna, k, t). If at any step you find more than one Profile-most probable k-mer in a given string, use the one occurring first.
@@ -352,21 +354,60 @@ def greedy_motif_search(texts: list[str],k: int,t: int, pseudo_counts=True) -> n
     total = np.sum(len(constants.BASES)-max_counts)
     return total
 
-  n = len(texts[0])
-  best_motifs = np.array([list(seq[:k]) for seq in texts])
+  t,n = len(texts),len(texts[0])
+  best_motifs, best_score = np.array([list(seq[:k]) for seq in texts]), float('inf')
   for motif in [texts[0][i:i+k] for i in range(n-k+1)]:
     motifs = np.array([list(motif)])
     for j in range(1,t):
       profile = profile_motif_matrix(motifs,pseudo_counts) 
       kmers = np.array(list(profile_most_probable_kmer(texts[j], profile, k)))
       motifs = np.vstack((motifs, kmers))
-    if score(motifs) < score(best_motifs):
+    if score(motifs) < best_score:
       best_motifs = motifs
+      best_score = score(motifs)
   
   best_motifs_1d = [''.join(row) for row in best_motifs]
-  return best_motifs_1d
+  return best_motifs_1d, best_score
 
-  return best_motifs
+def randomized_motif_search(texts, k, pseudo_counts=True, iterations=1000, debug=False):
+  def score(motifs):
+    matrix = count_motif_matrix(motifs,pseudo_counts)
+    max_counts = np.max(matrix, axis=0)
+    total = np.sum(len(constants.BASES)-max_counts)
+    return total
+
+  t,n = len(texts), len(texts[0])
+  best_motifs, best_score = None, float('inf')
+  for i in range(iterations):
+    if debug: print_sep(f"Iteration {i}")
+    motifs = []
+    for seq in texts:
+      start = random.randint(0,n-k) #N=10, k=5 -> max start = 5
+      kmer = list(seq[start:start+k])
+      motifs.append(kmer)
+    motifs = np.array(motifs)
+    current_score = score(motifs)
+    if debug: 
+      print(f"Chose collection of motifs with score {current_score}:")
+      print_highlight_motifs(texts, [''.join(kmer) for kmer in motifs], color="RED")
+    while True:
+      profile = profile_motif_matrix(motifs, pseudo_counts)
+      new_motifs = np.array([list(profile_most_probable_kmer(text, profile, k)) for text in texts])
+      new_score = score(new_motifs)
+      if new_score < current_score:
+        motifs = new_motifs
+        current_score = new_score
+      else:
+        break
+    if debug:
+      print_sep()
+      print(f"Iterated to improve motifs with score {current_score}")
+      print_highlight_motifs(texts, [''.join(kmer) for kmer in motifs], color="RED")
+    if current_score < best_score:
+      best_score = current_score
+      best_motifs = motifs
+  best_motifs_1d = [''.join(row) for row in best_motifs]
+  return best_motifs_1d, best_score
 
 ## TESTS
 def test_frequent_words_with_mismatches_complements():
@@ -441,17 +482,34 @@ def test_profile_most_probable_kmer():
   profile_df = profile_matrix_as_dataframe(profile_matrix)
   assert (profile_most_probable_kmer(text,profile_df,k) == 'CCGAG')
 
-def test_greedy_motif_search():
+def test_motif_search():
   print()
-  input = (['GGCGTTCAGGCA','AAGAATCAGTCA','CAAGGAGTTCGC','CACGTCAATCAC','CAATAATATTCG'],3,5)
-  soln = greedy_motif_search(*input,pseudo_counts=False)
-  assert (list(soln) == ['CAG','CAG','CAA','CAA','CAA'])
+  
+  input = (['GGCGTTCAGGCA','AAGAATCAGTCA','CAAGGAGTTCGC','CACGTCAATCAC','CAATAATATTCG'],3)
+  print(f"k={input[1]}-Motif search on {input[0]}")
+  gsoln = greedy_motif_search(*input,pseudo_counts=False)
+  print(f"\tgreedy soln = {gsoln}")
+  assert (list(gsoln[0]) == ['CAG','CAG','CAA','CAA','CAA'])
 
-  input = (['GGCGTTCAGGCA','AAGAATCAGTCA','CAAGGAGTTCGC','CACGTCAATCAC','CAATAATATTCG'],3,5)
-  soln = greedy_motif_search(*input, pseudo_counts=True)
-  assert (list(soln) == ['TTC','ATC','TTC','ATC','TTC'])
+  rsoln = randomized_motif_search(*input,pseudo_counts=False)
+  print(f"\trandomized soln after 1000 iterations: {rsoln}")
+  assert (rsoln[1] <= gsoln[1]) #TODO: not deterministic
+
+  input = (['GGCGTTCAGGCA','AAGAATCAGTCA','CAAGGAGTTCGC','CACGTCAATCAC','CAATAATATTCG'],3)
+  print(f"k={input[1]}-Motif search on {input[0]}")
+  gsoln = greedy_motif_search(*input, pseudo_counts=True)
+  print(f"\tgreedy soln = {gsoln}")
+  assert (list(gsoln[0]) == ['TTC','ATC','TTC','ATC','TTC'])
+
+  rsoln = randomized_motif_search(*input, pseudo_counts=True)
+  print(f"\trandomized soln after 1000 iterations: {rsoln}")
+  assert (rsoln[1] <= gsoln[1]) #TODO: not deterministic
+
+  input = (['CGCCCCTCTCGGGGGTGTTCAGTAAACGGCCA','GGGCGAGGTATGTGTAAGTGCCAAGGTGCCAG','TAGTACCGAGACCGAAAGAAGTATACAGGCGT','TAGATCAAGTTTCAGGTGCACGTCGGTGAACC','AATCCACCAGCTCCACGTGCAATGTTGGCCTA'], 8)
+  print(f"k={input[1]}-motif search on {input[0]}")
+  soln = randomized_motif_search(*input)
+  print(soln)
 
 
 if __name__ == '__main__':
-  pytest.main(["-s", __file__]) #-s to not suppress prints
-  print("all tests passed!")
+  exit_code = pytest.main(["-s", __file__]) #-s to not suppress prints
