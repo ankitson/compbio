@@ -1,6 +1,7 @@
 import itertools
 import math
 import random
+import sys
 from typing import Iterable, Iterator, Tuple
 
 import pytest
@@ -514,4 +515,8 @@ def test_motif_search():
 
 
 if __name__ == '__main__':
-  exit_code = pytest.main(["-s", __file__]) #-s to not suppress prints
+  if len(sys.argv) > 1:
+    exit_code = pytest.main(["-s", sys.argv[1]]) #-s to not suppress prints
+  else:
+    exit_code = pytest.main(["-s",__file__]) #-s to not suppress prints
+  sys.exit(exit_code)
