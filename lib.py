@@ -334,9 +334,11 @@ def profile_most_probable_kmer(text: str, profile_df: pd.DataFrame, k: int):
   """
   n = len(text)
   best_prob,best_kmer = 0, text[:k]
+  profile_matrix = profile_df.values
+  locs = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
   for i in range(n-k+1):
     pattern = text[i:i+k]
-    prob_list = [profile_df.loc[c,pi] for (pi,c) in enumerate(pattern)]
+    prob_list = [profile_matrix[locs[c]][pi] for (pi,c) in enumerate(pattern)]
     prob = np.prod(prob_list)
     if prob > best_prob:
       best_prob,best_kmer = prob,pattern
@@ -379,7 +381,7 @@ def randomized_motif_search(texts, k, pseudo_counts=True, iterations=1000, debug
   t,n = len(texts), len(texts[0])
   best_motifs, best_score = None, float('inf')
   for i in range(iterations):
-    if debug: print_sep(f"Iteration {i}")
+    if debug and i%50==0: print_sep(f"Iteration {i}")
     motifs = []
     for seq in texts:
       start = random.randint(0,n-k) #N=10, k=5 -> max start = 5
