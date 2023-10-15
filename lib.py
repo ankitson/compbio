@@ -308,6 +308,13 @@ def score_motif_profile_entropy(profile: ndarray) -> float:
   sum = np.sum(profile[:,:])
   return sum
 
+def score_motif_counts(counts: pd.DataFrame, pseudo_counts=True) -> int:
+  max_counts = np.max(counts, axis=0)
+  col_sums = np.sum(counts, axis=0)
+  col_scores = col_sums - max_counts
+  total = np.sum(col_scores)
+  return total
+
 def median_strings(texts, k):
   """Computes all median strings
 Input: An integer k, followed by a space-separated collection of strings Dna.
@@ -350,13 +357,6 @@ def greedy_motif_search(texts: list[str],k: int, pseudo_counts=True) -> ndarray:
     Input: Integers k and t, followed by a space-separated collection of strings Dna.
     Output: A collection of strings BestMotifs resulting from applying GreedyMotifSearch(Dna, k, t). If at any step you find more than one Profile-most probable k-mer in a given string, use the one occurring first.
   """
-  
-  def score(motifs):
-    matrix = count_motif_matrix(motifs,pseudo_counts)
-    max_counts = np.max(matrix, axis=0)
-    total = np.sum(len(constants.BASES)-max_counts)
-    return total
-
   t,n = len(texts),len(texts[0])
   best_motifs, best_score = np.array([list(seq[:k]) for seq in texts]), float('inf')
   for motif in [texts[0][i:i+k] for i in range(n-k+1)]:
@@ -365,20 +365,14 @@ def greedy_motif_search(texts: list[str],k: int, pseudo_counts=True) -> ndarray:
       profile = profile_motif_matrix(motifs,pseudo_counts) 
       kmers = np.array(list(profile_most_probable_kmer(texts[j], profile, k)))
       motifs = np.vstack((motifs, kmers))
-    if score(motifs) < best_score:
+    if score_motif_counts(count_motif_matrix(motifs)) < best_score:
       best_motifs = motifs
-      best_score = score(motifs)
+      best_score = score_motif_counts(count_motif_matrix(motifs))
   
   best_motifs_1d = [''.join(row) for row in best_motifs]
   return best_motifs_1d, best_score
 
 def randomized_motif_search(texts, k, pseudo_counts=True, iterations=1000, debug=False):
-  def score(motifs):
-    matrix = count_motif_matrix(motifs,pseudo_counts)
-    max_counts = np.max(matrix, axis=0)
-    total = np.sum(len(constants.BASES)-max_counts)
-    return total
-
   t,n = len(texts), len(texts[0])
   best_motifs, best_score = None, float('inf')
   for i in range(iterations):
@@ -389,14 +383,14 @@ def randomized_motif_search(texts, k, pseudo_counts=True, iterations=1000, debug
       kmer = list(seq[start:start+k])
       motifs.append(kmer)
     motifs = np.array(motifs)
-    current_score = score(motifs)
+    current_score = score_motif_counts(count_motif_matrix(motifs))
     if debug and i%50 == 0: 
       print(f"Chose collection of motifs with score {current_score}:")
       print_highlight_motifs(texts, [''.join(kmer) for kmer in motifs], color="RED")
     while True:
       profile = profile_motif_matrix(motifs, pseudo_counts)
       new_motifs = np.array([list(profile_most_probable_kmer(text, profile, k)) for text in texts])
-      new_score = score(new_motifs)
+      new_score = score_motif_counts(count_motif_matrix(new_motifs))
       if new_score < current_score:
         motifs = new_motifs
         current_score = new_score
@@ -451,6 +445,30 @@ def test_hamming_distance():
   assert hamming_distance('ACGT','ACG') == 1
   assert hamming_distance('ACT','CAT') == 2
 
+def test_motif_score():
+  counts = np.array([
+    [5,3,2,4,1],
+    [1,2,3,5,3],
+    [4,7,8,2,1],
+    [4,2,1,3,9]
+  ])
+  assert(score_motif_counts(counts) == 36)
+
+  counts = np.array([
+    [1,2,3,4],
+    [1,2,3,4],
+    [1,2,3,4]
+  ])
+  assert(score_motif_counts(counts) == 2*(1+2+3+4))
+
+  counts = np.array([
+    [5,5,0,0],
+    [0,0,5,0],
+    [0,0,0,5],
+  ])
+  assert(score_motif_counts(counts) == 0)
+
+         
 def test_motif_enumerate():
   assert(
     sorted(motif_enumerate_bruteforce(['ATTTGGC','TGCCTTA','CGGTATC', 'GAAAATT'],k=3,d=1)) ==
