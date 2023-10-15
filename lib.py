@@ -406,6 +406,40 @@ def randomized_motif_search(texts, k, pseudo_counts=True, iterations=1000, debug
   best_motifs_1d = [''.join(row) for row in best_motifs]
   return best_motifs_1d, best_score
 
+def weighted_die(weights: Iterable[float]):
+  return random.choices(range(len(weights)), weights=weights)[0]
+
+def gibbs_sampling_motif_search(texts: Iterable[str], k: int, iters: int, pseudo_counts=True):
+  t,n = len(texts), len(texts[0])
+  motifs = []
+  for seq in texts:
+    start = random.randint(0,n-k)
+    kmer = list(seq[start:start+k])
+    motifs.append(kmer)
+  motifs = np.array(motifs)
+  best_motifs = motifs
+  curr_score = score_motif_counts(count_motif_matrix(motifs))
+  for i in range(iters):
+    remove = random.randint(0,t-1)
+    removed_motifs = np.delete(motifs, remove, axis=0)
+    profile = profile_motif_matrix(removed_motifs, pseudo_counts)
+    kmers = [texts[remove][i:i+k] for i in range(n-k+1)]
+    kmer_probs = []
+    for kmer in kmers:
+      locs = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
+      prob_list = [profile.values[locs[c]][pi] for (pi,c) in enumerate(kmer)]
+      prob = np.prod(prob_list)
+      kmer_probs.append((kmer,prob))
+    roll = weighted_die([t[1] for t in kmer_probs])
+    new_motifs = np.vstack((motifs[:remove], np.array(list(kmers[roll])), motifs[remove+1:]))
+    new_score = score_motif_counts(count_motif_matrix(new_motifs))
+    motifs = new_motifs
+    if new_score < curr_score:
+      best_motifs = new_motifs
+      curr_score = new_score
+  best_motifs_1d = [''.join(row) for row in best_motifs]
+  return (best_motifs_1d,curr_score)
+
 ## TESTS
 def test_frequent_words_with_mismatches_complements():
   input = ('AAA',2,1) #compl = 'TTT'
@@ -516,6 +550,9 @@ def test_motif_search():
   print(f"\trandomized soln after 1000 iterations: {rsoln}")
   assert (rsoln[1] <= gsoln[1]) #TODO: not deterministic
 
+  gibbs = gibbs_sampling_motif_search(*input, iters=500)
+  print(f"\tgibbs soln after 500 iterations: {gibbs}")
+
   input = (['GGCGTTCAGGCA','AAGAATCAGTCA','CAAGGAGTTCGC','CACGTCAATCAC','CAATAATATTCG'],3)
   print(f"k={input[1]}-Motif search on {input[0]}")
   gsoln = greedy_motif_search(*input, pseudo_counts=True)
@@ -531,6 +568,19 @@ def test_motif_search():
   soln = randomized_motif_search(*input)
   print(soln)
 
+  gibbs = gibbs_sampling_motif_search(*input, iters=500)
+  print(f"\tGibbs sampling soln after 500 iters: {gibbs}")
+
+def test_weighted_die():
+  num_rolls = 100000
+  wts = [1,1,1,10]
+  probs = [1/13,1/13,1/13,10/13]
+  rolls = [weighted_die(wts) for i in range(num_rolls)]
+  #print(rolls)
+  counts = [rolls.count(i) for i in range(4)]
+  fracns = [count/num_rolls for count in counts]
+  print(probs)
+  print(fracns)
 
 if __name__ == '__main__':
   if len(sys.argv) > 1:
