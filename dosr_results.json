@@ -1,0 +1,224 @@
+{
+  "gibbs": {
+    "8": [
+      {
+        "kmers": [
+          "CCCTGGCT",
+          "CCGCGGCC",
+          "CGCCGGTC",
+          "CGCCGGGC",
+          "CACCGGGT",
+          "CGCCGGCC",
+          "CCCTGGCC",
+          "CACAGCCC",
+          "TCCCCGCC",
+          "CCCCGGGC"
+        ],
+        "score": 8
+      }
+    ],
+    "9": [
+      {
+        "kmers": [
+          "GGCCGGGAC",
+          "GGCAGCAGA",
+          "GGCTGCGGC",
+          "GGCCAGGGC",
+          "GTCCCCAGC",
+          "GGCCGCCGC",
+          "GGGCGCGGA",
+          "GGCCGCGGA",
+          "TACCGCTGA",
+          "GTCCGCGAC"
+        ],
+        "score": 21
+      }
+    ],
+    "10": [
+      {
+        "kmers": [
+          "CCCCGCCCGG",
+          "CATCGACCCG",
+          "CCAAGCCCCG",
+          "CATCGGCCAG",
+          "AATCGCCCAG",
+          "CTTCGAGCTG",
+          "CCTAGCCCTG",
+          "TGTCGGCCAG",
+          "TCTCGCCCTG",
+          "CCTCGGCCAG"
+        ],
+        "score": 24
+      }
+    ],
+    "11": [
+      {
+        "kmers": [
+          "GGACTTCAGGC",
+          "GTACCTTCGGC",
+          "TGACTTCCGGC",
+          "GGATTACCGAC",
+          "GCACTTCGGGC",
+          "GGACCTTCGGC",
+          "GGACTTCTGTC",
+          "GGACTTTCGGC",
+          "GGACTAACGGC",
+          "GGACGTCCGCG"
+        ],
+        "score": 20
+      }
+    ],
+    "12": [
+      {
+        "kmers": [
+          "GACTTCAGGCCC",
+          "GACCCGCGGCCC",
+          "GACTTCCGGCGG",
+          "GAATCCCGGACC",
+          "GACCGACGTCCC",
+          "GACCTTCGGCCC",
+          "GACTTCTGTCCC",
+          "GACTTTCGGCCC",
+          "GACTAACGGCCC",
+          "GACGTCCGCGAC"
+        ],
+        "score": 24
+      }
+    ]
+  },
+  "random": {
+    "8": [
+      {
+        "kmers": [
+          "CCGGCGCG",
+          "CCCACGGG",
+          "CCGGCGGG",
+          "GCGCCGGG",
+          "CAGGCGGG",
+          "CCGACGGG",
+          "CCGACGGG",
+          "CCGTTGGG",
+          "CCGACGGG",
+          "ACGACGCG"
+        ],
+        "score": 12
+      }
+    ],
+    "9": [
+      {
+        "kmers": [
+          "CCGCCCGGA",
+          "CCCACGGGT",
+          "CCGGCGGGA",
+          "CCGACCGCA",
+          "CAGGCGGGA",
+          "CCGACGGGC",
+          "CCGACGGGC",
+          "GCGACGGAA",
+          "CCGACGGGA",
+          "CAAGCGGGA"
+        ],
+        "score": 16
+      }
+    ],
+    "10": [
+      {
+        "kmers": [
+          "GACTTCAGGC",
+          "GACCCGCGGC",
+          "GACTTCCGGC",
+          "GAATCCCGGA",
+          "CACTTCGGGC",
+          "GACTTCGAGC",
+          "GACTTCTGTC",
+          "GACTTTCGGC",
+          "GACTAACGGC",
+          "GTCCCCGGGC"
+        ],
+        "score": 20
+      }
+    ],
+    "11": [
+      {
+        "kmers": [
+          "GACTTCAGGCC",
+          "GACCCGCGGCC",
+          "GACTTCCGGCG",
+          "GAATCCCGGAC",
+          "CACTTCGGGCA",
+          "GACCTTCGGCC",
+          "GACTTCTGTCC",
+          "GACTTTCGGCC",
+          "GACTAACGGCC",
+          "GTGTTCTGGCC"
+        ],
+        "score": 21
+      }
+    ],
+    "12": [
+      {
+        "kmers": [
+          "GGACTTCAGGCC",
+          "GGTCCTGCGGCC",
+          "TGACTTCCGGCG",
+          "GGATTACCGACC",
+          "GCACTTCGGGCA",
+          "GGACCTTCGGCC",
+          "GGACTTCTGTCC",
+          "GGACTTTCGGCC",
+          "GGACTAACGGCC",
+          "GGACGTCCGCGA"
+        ],
+        "score": 23
+      }
+    ]
+  },
+  "median": {
+    "8": [
+      {
+        "kmers": [
+          "CATCGGCC"
+        ],
+        "score": null
+      }
+    ],
+    "9": [
+      {
+        "kmers": [
+          "ACCGACGGG",
+          "CCATCGCCC",
+          "CCATCGGCC",
+          "CCGACGGGA",
+          "CCGACGGGC",
+          "CTATCGGCC",
+          "CTTTGGGCA",
+          "GCCGACGGG",
+          "GGACTTCCG",
+          "GGCGGGGAC",
+          "GTGGCCACC",
+          "GTGGCCGCC",
+          "TGGCCACCA"
+        ],
+        "score": null
+      }
+    ],
+    "10": [
+      {
+        "kmers": "CTATCGGCCC",
+        "score": null
+      }
+    ],
+    "11": [
+      {
+        "kmers": "GGACTTCCGGC",
+        "score": null
+      }
+    ],
+    "12": [
+      {
+        "kmers": "GGACTTCCGGCC",
+        "score": null
+      }
+    ]
+  }
+}

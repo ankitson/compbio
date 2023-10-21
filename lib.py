@@ -313,7 +313,7 @@ def score_motif_counts(counts: pd.DataFrame, pseudo_counts=True) -> int:
   col_sums = np.sum(counts, axis=0)
   col_scores = col_sums - max_counts
   total = np.sum(col_scores)
-  return total
+  return int(total) #convert numpy int to int for json serialization
 
 def median_strings(texts, k):
   """Computes all median strings
