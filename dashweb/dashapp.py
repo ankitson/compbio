@@ -37,7 +37,7 @@ def build_layout():
           dcc.RadioItems(options=["A","T","C","G"], value="G", id="baseradio1",  inline=True),
           dcc.RadioItems(options=["A","T","C","G"], value="C", id="baseradio2",  inline=True)
         ]), width=2),
-        dbc.Col(dcc.Dropdown(options=constants.GENOMES_KEYS, value=constants.GENOMES_KEYS[0], id="genomeselect"))
+        dbc.Col(dcc.Dropdown(options=constants.DATASET_KEYS, value=constants.DATASET_KEYS[0], id="genomeselect"))
       ]),
       dbc.Row([
         dbc.Col([

@@ -1,12 +1,13 @@
 from enum import Enum
 import os
 
-GENOMES = {
+DATASETS = {
     'e_coli': os.path.abspath('inputs/E_coli_genome.txt'),
     'salmonella': os.path.abspath('inputs/Salmonella_enterica.txt'),
-    'cholera': os.path.abspath('inputs/Vibrio_Cholera_Genome.txt')    
+    'cholera': os.path.abspath('inputs/Vibrio_Cholera_Genome.txt'),
+    'tb_dosr': os.path.abspath('inputs/DosR.txt'),
 }
-GENOMES_KEYS = list(GENOMES.keys())
+DATASET_KEYS = list(DATASETS.keys())
 
 BASES = ['A','C','G','T']
 BASES_COMPLEMENTS = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
@@ -21,7 +22,9 @@ class Plots(Enum):
 
 ENABLED_PLOTS = [Plots.COUNTS_PCT_BASE, Plots.COUNTS_PCT_DIFF, Plots.SKEW]
 
-def genome(key):
-  if key not in GENOMES_KEYS:
+def dataset(key):
+  if key not in DATASET_KEYS:
     raise Exception(f"invalid key {key}")
-  with open(GENOMES[key]) as f: return f.read().strip().replace('\n','')
+  if key == 'tb_dosr':
+     with open(DATASETS[key]) as f: return [l.strip() for l in f.readlines()]
+  with open(DATASETS[key]) as f: return f.read().strip().replace('\n','')

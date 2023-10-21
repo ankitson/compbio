@@ -70,7 +70,7 @@ def test_week2():
 
   print_sep("Epilogue: Find a DnaA Box in Salmonella enterica!!")
   print("The skew diagram shows the minimum at around position 3,923,600")
-  salmonella = constants.genome('salmonella')
+  salmonella = constants.dataset('salmonella')
   ori_cands = minimum_skew(salmonella)
   print(f"Minimum skew positions computed: {ori_cands}")
   ori_cand = ori_cands[0]

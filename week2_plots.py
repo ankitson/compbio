@@ -11,7 +11,7 @@ def get_counts_ecoli(nucleotide):
       raise ValueError(f"Invalid nucleotide {nucleotide}")
   
   NUM_FRAGMENTS = 46
-  with open(constants.GENOMES['e_coli']) as f: ecoli = f.read().strip()
+  with open(constants.DATASETS['e_coli']) as f: ecoli = f.read().strip()
 
   npecoli = np.array(list(ecoli))
 
@@ -123,7 +123,7 @@ def graph_diff_counts_pct(b1,b2):
   return (fig, descr)
 
 def graph_skew_diagram(genome_dataset, sample_freq=100):
-  skewg = gc_skew_iter(constants.genome(genome_dataset))
+  skewg = gc_skew_iter(constants.dataset(genome_dataset))
   # Dont plot every point, sample uniformly
   skew_pts = []
   for i, val in enumerate(skewg):
