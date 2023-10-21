@@ -3,7 +3,7 @@ from typing import Iterator, Iterable
 ## FILE IO
 def write_temp(inp: Iterator) -> None:
   out = open('temp.txt','w')
-  if hasattr(inp, '__iter__'):
+  if hasattr(inp, '__iter__') and not isinstance(inp, str):
     text = format_iter(inp)
   else:
     text = str(inp)
@@ -46,6 +46,19 @@ def format_iter(l: Iterator) -> str:
 def print_iter(l: Iterator) -> None:
   print(format_iter(l))
 
+def format_dict(d: dict) -> str:
+  lines = []
+  for (k,v) in d.items():
+    kstr = str(k)
+    if hasattr(k, '__iter__') and not isinstance(k, str):
+      kstr = format_iter(k)
+    vstr = str(v)
+    if hasattr(v, '__iter__') and not isinstance(v, str): 
+      vstr = format_iter(v)
+    line = f"{kstr}: {vstr}"
+    lines.append(line)
+  return '\n'.join(lines)
+    
 def print_highlight(str: str, highlight: Iterable, color="BOLD"):
   for h in highlight:
     str = str.replace(h, c("BOLD", h))

@@ -24,3 +24,6 @@ $ python3 week1.py #to run week1/2/3...
 $ python3 lib.py #run tests
 ```
 
+**Todos**
+
+- fix tests to not hardcode file path but not run tests from imported files.
