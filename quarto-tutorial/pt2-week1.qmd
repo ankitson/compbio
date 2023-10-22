@@ -14,8 +14,14 @@ Sanger developed the method of sequencing genes called "Sanger Sequencing". He h
 
 DNA Polymerase in the presence of free floating bases (ACGT) and a strand of DNA will build the complementary sequence. But it does this so fast that it's hard to see what's going on!! Sanger used modified bases with two important properties - each glowed a different color, and they were "capped" at the ends so DNA polymerase would get "stuck" and not be able to add on any more bases. Then, you can image the medium, look at the color of the light to determine the base that was just added, then uncap it to allow DNA polymerase to add the next base.
 
-This was the first method of sequencing, but there are more. Shotgun sequencing involves blowing up the DNA into millions of fragments and sequencing each part, then assembling them all into one. This was invented by Craig Venter around 1998, first to sequence *Haemophilus influenzae* and eventually the human genome - he founded Celera to do this. It was acquired by Quest Diagnostics in 2011!
+This was the first method of sequencing, but there are more.
 
-[The cost to sequence](https://www.genome.gov/about-genomics/fact-sheets/Sequencing-Human-Genome-cost) the human genome has dropped from $10M per genome in 2007 to $1000 today!
+Shotgun sequencing is a sort of modification to select *what* to sequence - it involves blowing up the DNA into millions of fragments and sequencing each part using say Sanger sequencing, then assembling them all into one. This was invented by Craig Venter around 1998, first to sequence *Haemophilus influenzae* and eventually the human genome - he founded Celera to do this. It was acquired by Quest Diagnostics in 2011!
+
+The latest method of sequencing, Next-Gen Sequencing (NGS) is different. This uses Sequencing-by-Synthesis:
+
+{{< video https://www.youtube.com/watch?v=fCd6B5HRaZ8 >}}
+
+[The cost to sequence](https://www.genome.gov/about-genomics/fact-sheets/Sequencing-Human-Genome-cost) the human genome has dropped from \$10M per genome in 2007 to \$1000 today!
 
 <img src="pt2-week1_files/2022_Sequencing_cost_per_Human_Genome.jpg" width="100%"/>
