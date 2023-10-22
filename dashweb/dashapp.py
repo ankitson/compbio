@@ -10,6 +10,7 @@ from week2_plots import \
   graph_counts_raw, \
   graph_diff_counts_pct, \
   graph_skew_diagram
+import pt2_week1
 import constants
 
 def init_dash(server):
@@ -32,7 +33,7 @@ def build_layout():
    dbc.Container([
       dbc.Row(html.H1(children='Bioinformatics I', style={'textAlign':'center'}),),
       dbc.Row([
-        dbc.Col(dcc.Dropdown(options=figure_select, value=figure_select[1], id='dropdown-selection')),
+        dbc.Col(dcc.Dropdown(options=figure_select, value=figure_select[3], id='dropdown-selection')),
         dbc.Col(dbc.Stack([
           dcc.RadioItems(options=["A","T","C","G"], value="G", id="baseradio1",  inline=True),
           dcc.RadioItems(options=["A","T","C","G"], value="C", id="baseradio2",  inline=True)
@@ -86,6 +87,13 @@ def init_callbacks(dash_app):
       (fig, descr) = graph_skew_diagram(genome_dataset)
       genome_select_style = STYLE_SHOW
       base_select_style = STYLE_HIDDEN
+    elif value == constants.Plots.NETWORK.value:
+      print("Network graph")
+      input = ("AAGATTCTCTAAGA", 4)
+      output = pt2_week1.de_bruijn_graph_from_string(*input)
+      fig = pt2_week1.de_bruijn_graph_vis(output)
+      #fig = pt2_week1.sample_network_graph()
+      descr = "xx"
     else:
       (fig,descr) = (px.bar(x=[1,2,3],y=[1,2,3]), """This is an example <br/>""" )
     

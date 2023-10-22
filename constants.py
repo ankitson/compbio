@@ -19,8 +19,9 @@ class Plots(Enum):
     COUNTS_PCT_DIFF = 'Counts Diff(%)'
     SKEW = 'Skew'
     TEST = 'Test'
+    NETWORK = 'Network'
 
-ENABLED_PLOTS = [Plots.COUNTS_PCT_BASE, Plots.COUNTS_PCT_DIFF, Plots.SKEW]
+ENABLED_PLOTS = [Plots.COUNTS_PCT_BASE, Plots.COUNTS_PCT_DIFF, Plots.SKEW, Plots.NETWORK]
 
 def dataset(key):
   if key not in DATASET_KEYS:
