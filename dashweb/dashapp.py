@@ -10,7 +10,7 @@ from week2_plots import \
   graph_counts_raw, \
   graph_diff_counts_pct, \
   graph_skew_diagram
-import pt2_week1
+import pt2_week1_plots
 import constants
 
 def init_dash(server):
@@ -88,12 +88,7 @@ def init_callbacks(dash_app):
       genome_select_style = STYLE_SHOW
       base_select_style = STYLE_HIDDEN
     elif value == constants.Plots.NETWORK.value:
-      print("Network graph")
-      input = ("AAGATTCTCTAAGA", 4)
-      output = pt2_week1.de_bruijn_graph_from_string(*input)
-      fig = pt2_week1.de_bruijn_graph_vis(output)
-      #fig = pt2_week1.sample_network_graph()
-      descr = "xx"
+      (fig, descr) = pt2_week1_plots.sample_debruijn_graph()
     else:
       (fig,descr) = (px.bar(x=[1,2,3],y=[1,2,3]), """This is an example <br/>""" )
     
