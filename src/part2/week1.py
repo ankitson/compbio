@@ -49,7 +49,7 @@ def de_bruijn_graph_from_kmers(kmers: List[str], k: int = None):
 
 def test_week1():
   print()
-  print_sep("Bioinformatics II: Week 1 - How do we assemble genomes?")
+  print_sep("Bioinformatics II: Week 1 - How do we assemble genomes? (Part 1/2)")
 
   print_sep("String Composition")
   print("""Solve the String Composition Problem.
