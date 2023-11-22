@@ -1,12 +1,12 @@
 ---
-title: "Bioinformatics II: Week 1"
+title: "Bioinformatics II"
 format:
   html:
     code-fold: true
 #jupyter: python3
 ---
 
-# Week 1 - How do we assemble genomes?
+# Week 1 - How do we assemble genomes? (1/2)
 
 ## Sequencing
 
@@ -24,4 +24,8 @@ The latest method of sequencing, Next-Gen Sequencing (NGS) is different. This us
 
 [The cost to sequence](https://www.genome.gov/about-genomics/fact-sheets/Sequencing-Human-Genome-cost) the human genome has dropped from \$10M per genome in 2007 to \$1000 today!
 
-<img src="pt2-week1_files/2022_Sequencing_cost_per_Human_Genome.jpg" width="100%"/>
+<img src="part2_files/2022_Sequencing_cost_per_Human_Genome.jpg" width="100%"/>
+
+# Week 2 - How do we assemble genomes? (2/2)
+
+hello
