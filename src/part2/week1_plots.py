@@ -1,7 +1,7 @@
 import plotly.graph_objects as go
 import networkx as nx
 
-import pt2_week1
+from part2 import week1
 
 def de_bruijn_graph_to_nx_graph(graph: dict):
   nx_graph = nx.DiGraph()
@@ -108,6 +108,6 @@ def sample_network_graph():
 
 def sample_debruijn_graph():
   input = ("AAGATTCTCTAAGA", 4)
-  output = pt2_week1.de_bruijn_graph_from_string(*input)
+  output = week1.de_bruijn_graph_from_string(*input)
   fig = de_bruijn_graph_vis(output)
   return (fig, "De Bruijn graph of 4-mers of AAGATTCTCTAAGA")

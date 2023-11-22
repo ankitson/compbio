@@ -250,6 +250,7 @@ def canonicalize_freq_map(map: dict[str,int]) -> dict[str,int]:
 
 def gc_skew_iter(genome: str) -> Iterator[int]:
   """Yields the #G-#C skew at each position as an iterator"""
+  print(f"genome: {genome}")
   skew_map = {'G': 1, 'C': -1, 'A': 0, 'T': 0} #contribution to skew of each base
   skews = []
   curr = 0

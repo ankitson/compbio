@@ -1,6 +1,12 @@
-## Code and notes from [Coursera Bioinformatics I](https://www.coursera.org/learn/dna-analysis/home) course
+# Bioinformatics 
 
-These problems are also on [Rosalind](https://rosalind.info/problems/locations/). Also includes some visualizations.
+This repo has my code, notes and visualizations from the courses in the [Coursera Bioinformatics specialization](https://www.coursera.org/specializations/bioinformatics).
+
+[x] [Bioinformatics I](https://www.coursera.org/learn/dna-analysis/home) - completed  
+
+[x] [Bioinformatics II](https://www.coursera.org/learn/genome-sequencing/home) - in progress
+
+Some of these problems are also on [Rosalind](https://rosalind.info/problems/locations/). 
 
 **Setup**
 ```bash
@@ -9,18 +15,20 @@ $ source venv/bin/activate
 $ pip install -r requirements.txt
 ```
 
-**Running**
+**Run**
 
-Then either launch the visualizations server:
+Use the `Justfile` to run if you have `just` installed:
 ```bash
-$ ./server.sh # To launch dash/plotly server
+just part1_week1 #run code & tests for each week/part
+just web #run vis webserver
 ```
 
-or run the files with code & tests for each week:
-
+or use bash:
 ```bash
 $ source venv/bin/activate
-$ python3 week1.py #to run week1/2/3...
+$ cd src
+$ python3 wsgi.py #run vis webserver
+$ python3 -m part1.week1.py #run code & tests for each week/part
 $ python3 lib.py #run tests
 ```
 

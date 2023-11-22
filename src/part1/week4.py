@@ -49,22 +49,22 @@ def test_week4():
   #print(gsoln)
   #print_iter(gsoln[0])
 
+  def cache_results(results):
+    with open('../outputs/dosr_results.json','w') as f:
+      return f.write(json.dumps(results))
+  
   print_sep("Find the binding sites of the DosR (Dormancy Survival Regulator) transcription factor in TB")
   dosr = constants.dataset('tb_dosr')
   print(dosr)
 
   dosr_results = {}
   rewrite = False
-  if rewrite or not os.path.exists('dosr_results.json'):
+  if rewrite or not os.path.exists('../outputs/dosr_results.json'):
     cache_results(dosr_results)
-  elif os.path.exists('dosr_results.json'):
+  elif os.path.exists('../outputs/dosr_results.json'):
      print("reading")
-     with open('dosr_results.json','r') as f:
+     with open('../outputs/dosr_results.json','r') as f:
         dosr_results = json.loads(f.read())
-  
-  def cache_results(results):
-    with open('dosr_results.json','w') as f:
-      return f.write(json.dumps(results))
 
   print(dosr_results)
   
@@ -73,30 +73,33 @@ def test_week4():
     print_sep(f"k={k}")
 
     iters = 4000
-    if not regen and str(k) in dosr_results['gibbs']:
+    if not regen and str(k) in dosr_results.get('gibbs',[]):
       result = dosr_results['gibbs'][str(k)][0]
       gibbs = (result['kmers'], result['score'])
     else:
       gibbs = gibbs_sampling_motif_search(texts=dosr,k=k,iters=iters)
+      dosr_results['gibbs'] = {}
       dosr_results['gibbs'].setdefault(str(k), []).append({'kmers': gibbs[0], 'score': gibbs[1]})
       cache_results(dosr_results)
     print(f"\tGibbs soln: {gibbs}")
 
     iters = 2000
-    if not regen and str(k) in dosr_results['random']:
+    if not regen and str(k) in dosr_results.get('random',[]):
       result = dosr_results['random'][str(k)][0]
       randomr = (result['kmers'], result['score'])
     else:
       randomr = randomized_motif_search(texts=dosr,k=k,iterations=iters)
+      dosr_results['random'] = {}
       dosr_results['random'].setdefault(str(k), []).append({'kmers': randomr[0], 'score': randomr[1]})
       cache_results(dosr_results)
     print(f"\tRandom soln: {randomr}")
     
-    if not regen and str(k) in dosr_results['median']:
+    if not regen and str(k) in dosr_results.get('median',[]):
       result = dosr_results['median'][str(k)][0]
       median = (result['kmers'], result['score'])
     else:
       median = median_strings(texts=dosr, k=k)
+      dosr_results['median'] = {}
       dosr_results['median'].setdefault(str(k), []).append({'kmers': median[0], 'score': None})
       cache_results(dosr_results)
     print(f"\tMedian soln: {median}")
@@ -138,4 +141,4 @@ def test_week4():
     
 
 if __name__ == '__main__':
-  sys.exit(pytest.main(["-s", "week4.py::test_week4"])) #-s to not suppress prints
+  sys.exit(pytest.main(["-s", __file__])) #-s to not suppress prints

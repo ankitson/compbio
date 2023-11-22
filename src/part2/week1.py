@@ -128,4 +128,4 @@ def test_de_bruijn_graph_from_kmers():
   #print(output)
 
 if __name__ == '__main__':
-  sys.exit(pytest.main(["-s", "pt2_week1.py::test_week1"])) #-s to not suppress prints
+  sys.exit(pytest.main(["-s", __file__])) #-s to not suppress prints

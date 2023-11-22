@@ -1,11 +1,12 @@
 from enum import Enum
 import os
 
+# These are imported from the weekX.py files, which are run at path src/, but also from the server 
 DATASETS = {
-    'e_coli': os.path.abspath('inputs/E_coli_genome.txt'),
-    'salmonella': os.path.abspath('inputs/Salmonella_enterica.txt'),
-    'cholera': os.path.abspath('inputs/Vibrio_Cholera_Genome.txt'),
-    'tb_dosr': os.path.abspath('inputs/DosR.txt'),
+    'e_coli': os.path.abspath('../inputs/E_coli_genome.txt'),
+    'salmonella': os.path.abspath('/home/ankit/code/compbio/inputs/Salmonella_enterica.txt'),
+    'cholera': os.path.abspath('../inputs/Vibrio_Cholera_Genome.txt'),
+    'tb_dosr': os.path.abspath('../inputs/DosR.txt'),
 }
 DATASET_KEYS = list(DATASETS.keys())
 

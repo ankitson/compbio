@@ -4,13 +4,13 @@ import plotly.express as px
 
 import constants
 
-from week2_plots import \
+from part1.week2_plots import \
   graph_counts_pct, \
   graph_counts_pct_shifted, \
   graph_counts_raw, \
   graph_diff_counts_pct, \
   graph_skew_diagram
-import pt2_week1_plots
+from part2 import week1_plots
 import constants
 
 def init_dash(server):
@@ -88,7 +88,7 @@ def init_callbacks(dash_app):
       genome_select_style = STYLE_SHOW
       base_select_style = STYLE_HIDDEN
     elif value == constants.Plots.NETWORK.value:
-      (fig, descr) = pt2_week1_plots.sample_debruijn_graph()
+      (fig, descr) = week1_plots.sample_debruijn_graph()
     else:
       (fig,descr) = (px.bar(x=[1,2,3],y=[1,2,3]), """This is an example <br/>""" )
     

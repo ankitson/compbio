@@ -2,7 +2,7 @@ from typing import Iterator, Iterable
 
 ## FILE IO
 def write_temp(inp: Iterator) -> None:
-  out = open('temp.txt','w')
+  out = open('../outputs/temp.txt','w')
   if hasattr(inp, '__iter__') and not isinstance(inp, str):
     text = format_iter(inp)
   else:
