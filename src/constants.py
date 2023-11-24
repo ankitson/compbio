@@ -1,6 +1,8 @@
 from enum import Enum
 import os
 
+TEMP_PATH = os.path.abspath('../outputs/temp.txt')
+
 # These are imported from the weekX.py files, which are run at path src/, but also from the server 
 DATASETS = {
     'e_coli': os.path.abspath('../inputs/E_coli_genome.txt'),

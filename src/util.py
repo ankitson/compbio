@@ -1,8 +1,57 @@
-from typing import Iterator, Iterable
+import os
+
+from typing import Dict, Iterator, Iterable
+
+import constants
+
+## PARSING
+def parse_graph(text: str):
+  nodes = {}
+  for line in text.splitlines():
+    fro, tos = line.split(": ")
+    fro = int(fro)
+    tos = [int(to) for to in tos.split(" ")]
+    nodes[fro] = tos
+    for to in tos:
+      if not to in nodes:
+        nodes[to] = []
+  return nodes
+
+def parse_list(text:str, mapper=lambda x: x):
+  l = text.strip().split(' ')
+  return list(map(mapper, text.strip().split(' ')))
+
+## OUTPUT
+def format_iter(l: Iterator) -> str:
+  return ' '.join([str(x) for x in l])
+
+def format_dict(d: dict) -> str:
+  lines = []
+  for (k,v) in d.items():
+    kstr = str(k)
+    if hasattr(k, '__iter__') and not isinstance(k, str):
+      kstr = format_iter(k)
+    vstr = str(v)
+    if hasattr(v, '__iter__') and not isinstance(v, str): 
+      vstr = format_iter(v)
+    line = f"{kstr}: {vstr}"
+    lines.append(line)
+  return '\n'.join(lines)
+
+def dotviz_graph(graph: Dict):
+  dotviz = "digraph {\n"
+  for node, edges in graph.items():
+    for edge in edges:
+      dotviz += f"  {node} -> {edge};\n"
+  dotviz += "}"
+  return dotviz
 
 ## FILE IO
 def write_temp(inp: Iterator) -> None:
-  out = open('../outputs/temp.txt','w')
+  write_iter(inp, constants.TEMP_PATH)
+  
+def write_iter(inp: Iterator, outpath) -> None:
+  out = open(outpath,'w')
   if hasattr(inp, '__iter__') and not isinstance(inp, str):
     text = format_iter(inp)
   else:
