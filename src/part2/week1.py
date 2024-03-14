@@ -1,6 +1,6 @@
 from collections import defaultdict
 import sys
-from typing import Iterable, List
+from typing import List, Sequence
 import pytest
 
 from lib import *
@@ -10,7 +10,7 @@ import constants
 def string_composition(s: str, k: int):
   return [s[i:i+k] for i in range(len(s)-k+1)]
 
-def kmer_path_to_string(path: Iterable[str]):
+def kmer_path_to_string(path: Sequence[str]) -> str:
   s = [path[0]]
   for comp in path[1:]:
     s.append(comp[-1])
@@ -18,7 +18,7 @@ def kmer_path_to_string(path: Iterable[str]):
   print(''.join(s[0:10]))
   return ''.join(s)
 
-def overlap_graph(reads: Iterable[str]):
+def overlap_graph(reads: Sequence[str]):
   n = len(reads[0])
   nodes = defaultdict(list)
   for read in reads:
@@ -37,7 +37,7 @@ def de_bruijn_graph_from_string(s: str, k: int):
     nodes[prefix].append(suffix)
   return nodes
 
-def de_bruijn_graph_from_kmers(kmers: List[str], k: int = None):
+def de_bruijn_graph_from_kmers(kmers: Sequence[str], k: int|None = None):
   if not k:
     k = len(kmers[0])
   nodes = defaultdict(list)
@@ -48,7 +48,7 @@ def de_bruijn_graph_from_kmers(kmers: List[str], k: int = None):
   return nodes
 
 def test_week1():
-  print()
+
   print_sep("Bioinformatics II: Week 1 - How do we assemble genomes? (Part 1/2)")
 
   print_sep("String Composition")

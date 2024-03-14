@@ -74,7 +74,9 @@ def write_temp(inp: Iterator) -> None:
   
 def write_iter(inp: Iterator, outpath) -> None:
   out = open(outpath,'w')
-  if hasattr(inp, '__iter__') and not isinstance(inp, str):
+  if type(inp) == dict:
+    text = format_dict(inp)
+  elif hasattr(inp, '__iter__') and not isinstance(inp, str):
     text = format_iter(inp)
   else:
     text = str(inp)
@@ -101,8 +103,9 @@ def c(color: str, text: str) -> str:
     shortk = k.lower()[0:1]
     if shortk == color or k == color:
       return v + text + color_dict["END"]
+  return text
 
-def print_sep(text:str=None) -> None:
+def print_sep(text:str|None=None) -> None:
   SEP_LEN = 100
   if text:
     num_char = len(text)
@@ -111,24 +114,8 @@ def print_sep(text:str=None) -> None:
   else:
     print(c("RED","-"*100))
 
-def format_iter(l: Iterator) -> str:
-  return ' '.join([str(x) for x in l])
-
 def print_iter(l: Iterator) -> None:
   print(format_iter(l))
-
-def format_dict(d: dict) -> str:
-  lines = []
-  for (k,v) in d.items():
-    kstr = str(k)
-    if hasattr(k, '__iter__') and not isinstance(k, str):
-      kstr = format_iter(k)
-    vstr = str(v)
-    if hasattr(v, '__iter__') and not isinstance(v, str): 
-      vstr = format_iter(v)
-    line = f"{kstr}: {vstr}"
-    lines.append(line)
-  return '\n'.join(lines)
     
 def print_highlight(str: str, highlight: Iterable, color="BOLD"):
   for h in highlight:

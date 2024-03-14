@@ -34,4 +34,7 @@ $ python3 lib.py #run tests
 
 **Todos**
 
-- fix tests to not hardcode file path but not run tests from imported files.
+- Use text dumps or something to version SQLITE DB instead of committing the binary
+https://news.ycombinator.com/item?id=38110286
+https://garrit.xyz/posts/2023-11-01-tracking-sqlite-database-changes-in-git
+https://datasette.io/tools/sqlite-diffable

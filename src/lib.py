@@ -119,7 +119,7 @@ def pattern_match_approx(text: str,pattern: str,d: int) -> list[int]:
       starts.append(i)
   return starts
 
-def pattern_count_approx(text: str, pattern: str, d: int) -> list[int]:
+def pattern_count_approx(text: str, pattern: str, d: int) -> int:
   return len(pattern_match_approx(text,pattern,d))
 
 def frequent_words_approx(text: str, k: int, d: int) -> dict[str, int]:
@@ -539,8 +539,6 @@ def test_profile_most_probable_kmer():
   assert (profile_most_probable_kmer(text,profile_df,k) == 'CCGAG')
 
 def test_motif_search():
-  print()
-  
   input = (['GGCGTTCAGGCA','AAGAATCAGTCA','CAAGGAGTTCGC','CACGTCAATCAC','CAATAATATTCG'],3)
   print(f"k={input[1]}-Motif search on {input[0]}")
   gsoln = greedy_motif_search(*input,pseudo_counts=False)

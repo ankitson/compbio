@@ -77,7 +77,6 @@ def test_week2():
 
 
 
-
 def rotation_eq(l1:list, l2:list):
   """Tests if two lists are rotations of each other"""
   start_indexes = [i for i, x in enumerate(l2) if x == l1[0]]
