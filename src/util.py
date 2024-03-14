@@ -1,8 +1,30 @@
 import os
+import sqlite3
+import json
 
 from typing import Dict, Iterator, Iterable
 
 import constants
+
+## DATABASE
+def init_db():
+  conn = sqlite3.connect('strings.db')
+  conn.execute('''CREATE TABLE IF NOT EXISTS strings
+               (id TEXT PRIMARY KEY,
+               content TEXT NOT NULL)''')
+  conn.commit()
+
+def write_to_db(id: str, content):
+  conn = sqlite3.connect('strings.db')
+  conn.execute(f"INSERT OR REPLACE INTO strings (id, content) VALUES ('{id}', '{json.dumps({ 'id': id, 'content': content } )}')")
+  conn.commit()
+
+def read_from_db(id: str):
+  conn = sqlite3.connect('strings.db')
+  cursor = conn.execute(f"SELECT content FROM strings WHERE id = '{id}'")
+  json_str = cursor.fetchone()[0]
+  obj = json.loads(json_str)
+  return obj['content']
 
 ## PARSING
 def parse_graph(text: str):
