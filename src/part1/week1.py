@@ -7,20 +7,28 @@ import constants
 import zipfile
 import os
 
+def parse_atom(atom):
+  if atom[0].isdigit():
+    return int(atom)
+  elif atom[0].isalpha():
+    return atom.strip()
+  else:
+    raise Exception("unknown atom")
+
+def parse_line(line):
+  atoms = [parse_atom(a) for a in line.split()]
+  if len(atoms) == 1:
+    return atoms[0]
+  else:
+    return atoms
+
 def parse_input(text):
   lines = [l for l in text.splitlines() if len(l) > 0]
   parsed = []
   for line in lines:
-    if line[0].isdigit() or line[0] == ' ':
-      nums = [int(x) for x in line.split()]
-      if len(nums) == 1:
-        parsed.append(nums[0])
-      else:
-        parsed.append(nums)
-    elif line[0].isalpha():
-      parsed.append(line)
-    else:
-      raise Exception("unnown")
+    parsed.append(parse_line(line))
+  # if len(parsed) == 1 and hasattr(parsed[0], '__iter__') and not isinstance(parsed[0], str):
+  #   return parsed[0]
   return parsed
 
 def run_test(input_path, function_to_test, inp_transform=lambda t: t):
@@ -32,43 +40,34 @@ def run_test(input_path, function_to_test, inp_transform=lambda t: t):
   for input_file in input_files:
     with open(os.path.join(input_folder, input_file), 'r') as infile:
       input_data = infile.read()  # Assuming the function takes the entire file content as input
-      parsed = parse_input(input_data)
-      transform = inp_transform(parsed)
-      # Run the function and get the output
+      input = parse_input(input_data)
+      transform = inp_transform(input)
       logging.debug(f"Parsed input = {transform}")
-      result = function_to_test(*transform)
 
-      # TODO: The expected output can be unsorted, so compares fail
-      # So write a real parser and unparser pair to go from python <-> cogniterra format
-      # and compare outputs semantically
+      result = function_to_test(*transform)
 
       # Construct corresponding output file name
       output_file = input_file.replace('input_', 'output_')
       with open(os.path.join(output_folder, output_file), 'r') as outfile:
         expected_output = outfile.read()
 
+      # unwrap
       parsed_output = parse_input(expected_output)
+      if hasattr(result, '__iter__') and not isinstance(result, str) and len(result) == 1:
+        result = result[0]
+      if hasattr(parsed_output, '__iter__') and not isinstance(parsed_output, str) and len(parsed_output) == 1:
+        parsed_output = parsed_output[0]
+
+      # sort
       if hasattr(result, '__iter__') and not isinstance(parsed_output, str):
         parsed_output = sorted(parsed_output)
-      
-      print(f"PO = {parsed_output}")
       if hasattr(result, '__iter__') and not isinstance(result, str):
         result = sorted(result)
-      print(f"RES = {result}")
-      
-      assert result == parsed_output 
 
-
+      logging.debug(f"expected_output = {parsed_output}")
+      logging.debug(f"output = {result}")
       
-      formatted_result = str(result)
-      if type(result) == dict:
-        raise Exception("dict output not supported yet")
-      elif hasattr(result, '__iter__') and not isinstance(result, str):
-        formatted_result = format_iter(sorted(result))
-      
-      #TODO 
-      # Check if the function's output matches the expected output
-        assert formatted_result == expected_output, f"Mismatch in file {input_file}\nExpected {expected_output}\nbut got {formatted_result}\non input {parsed}"    
+      assert result == parsed_output, f"Mismatch in file {input_file}\nExpected {parsed_output}\nbut got {result}\non input {input}"
   print(f"{function_to_test.__name__}: all tests passed!")
     
 def test_week1():
