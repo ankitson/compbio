@@ -9,3 +9,9 @@ __pycache__/
 *.swo
 *.DS_Store
 temp*
+
+.vscode/
+
+# Added by cargo
+
+/target

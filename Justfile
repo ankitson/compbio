@@ -21,6 +21,8 @@ part2_week1:
 part2_week2:
   source venv/bin/activate
   cd src && python3 -m part2.week2
+rr:
+  cargo run --release
 
 alias w    := web
 alias p1w1 := part1_week1
