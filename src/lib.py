@@ -11,7 +11,7 @@ from numpy import ndarray
 import constants
 from util import print_highlight_motifs, print_sep
 
-def freq_map_kmers(text: str, k: int) -> list[str]:
+def freq_map_kmers(text: str, k: int) -> dict[str, int]:
   n = len(text)
   freqs = {}
   for i in range(n-k+1):
@@ -148,9 +148,9 @@ def neighbors_lt(pattern: str, d: int) -> set[str]:
   #T(n) = H(n-1)*(n-1) + H(n-2)(n-2) + ...
 
   if d == 0:
-    return [pattern]
+    return set([pattern])
   if len(pattern) == 1:
-    return ['A', 'T', 'C', 'G']
+    return set(['A', 'T', 'C', 'G'])
   suffix_nbrs = neighbors_lt(pattern[1:], d) 
   nbrs = set([pattern])
   for snbr in suffix_nbrs:
@@ -183,7 +183,7 @@ def frequent_words_with_mismatches(text: str, k: int, d: int) -> Tuple[list[str]
   max_freq_kmers = [kmer for kmer in freq_map if freq_map[kmer] == max_freq]
   return max_freq_kmers, max_freq
     
-def frequent_words_with_mismatches_complements(text: str, k: int, d: int, debug=False) -> Tuple[list[str],int]:
+def frequent_words_with_mismatches_complements(text: str, k: int, d: int, debug=False) -> Tuple[list[str],int]|list[str]:
     """
     Find the most frequent k-mers (with mismatches and reverse complements) in a DNA string.
     O(4^k * (k + n))
