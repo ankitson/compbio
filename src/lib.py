@@ -19,8 +19,6 @@ def freq_map_kmers(text: str, k: int) -> list[str]:
     freqs[kmer] = freqs.get(kmer, 0) + 1
   return freqs
 
-#1.2 - 12
-#output all most frequent k-mers in text
 def frequent_words(text: str, k: int) -> list[str]:
   freq_map = freq_map_kmers(text, k)
   max_freq = max(freq_map.values())
