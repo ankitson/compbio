@@ -1,3 +1,4 @@
+from collections import defaultdict
 import itertools
 import math
 import random
@@ -105,6 +106,28 @@ def hamming_distance(s1: str, s2: str) -> int:
   dist += max(l1,l2) - min(l1,l2)
   return dist
 
+# def pattern_match_approx(text: str, pattern: str, d: int) -> list[int]:
+#   """
+#   Approximate Pattern Matching Problem: Find all approximate occurrences of a pattern in a string.
+#     * Input: Strings Pattern and Text along with an integer d.
+#     * Output: All starting positions where Pattern appears as a substring of Text with at most d mismatches.
+#   """
+#   pattern_length = len(pattern)
+#   starts = []
+#   mismatches = hamming_distance(text[:pattern_length], pattern)
+#   for i in range(len(text) - len(pattern)):
+#     if mismatches <= d:
+#       starts.append(i)
+#     if text[i] != pattern[0]:
+#       mismatches -= 1
+#     if text[i + pattern_length] != pattern[-1]:
+#       mismatches += 1
+#   if hamming_distance(text[-pattern_length:], pattern) <= d:
+#     starts.append(len(text)-pattern_length)
+#   # if mismatches <= d:
+#     # starts.append(len(text) - len(pattern))
+#   return starts
+
 def pattern_match_approx(text: str,pattern: str,d: int) -> list[int]:
   """
   Approximate Pattern Matching Problem: Find all approximate occurrences of a pattern in a string.
@@ -119,20 +142,6 @@ def pattern_match_approx(text: str,pattern: str,d: int) -> list[int]:
 
 def pattern_count_approx(text: str, pattern: str, d: int) -> int:
   return len(pattern_match_approx(text,pattern,d))
-
-def frequent_words_approx(text: str, k: int, d: int) -> dict[str, int]:
-  """
-  Frequent Words with Mismatches Problem: Find the most frequent k-mers with mismatches in a string.
-    Input: A string Text as well as integers k and d.
-    Output: All most frequent k-mers with up to d mismatches in Text.
-  """
-  def freq_map_kmers_approx(text, k, d):
-    n = len(text)
-    freqs = {}
-    for i in range(n-k+1):
-      kmer = text[i:i+k]
-      freqs[kmer] = freqs.get(kmer, 0) + 1
-    return freqs
 
 #TODO: What is the runtime of this function? How can it be optimized?
 def neighbors_lt(pattern: str, d: int) -> set[str]:
@@ -183,26 +192,49 @@ def frequent_words_with_mismatches(text: str, k: int, d: int) -> Tuple[list[str]
   max_freq_kmers = [kmer for kmer in freq_map if freq_map[kmer] == max_freq]
   return max_freq_kmers, max_freq
     
+def frequent_words_with_mismatches_complements_slow(text: str, k: int, d: int, debug=False) -> Tuple[list[str],int]|list[str]:
+  """
+  Find the most frequent k-mers (with mismatches and reverse complements) in a DNA string.
+  Brute Force Version: O(4^k * (k + n))
+  """
+  kmers = [''.join(x) for x in itertools.product('ATGC', repeat=k)]
+  counts = {}
+  for kmer in kmers:
+    count_pattern = pattern_count_approx(text, kmer, d)
+    count_rc_pattern = pattern_count_approx(text, reverse_complement(kmer), d)
+    total_count = count_pattern + count_rc_pattern
+    counts[kmer] = total_count
+
+  max_count = max(counts.values())
+  max_freq_kmers = [kmer for kmer, count in counts.items() if count == max_count]
+
+  if not debug:
+    return max_freq_kmers
+  else:
+    return (max_freq_kmers, max_count)
+
 def frequent_words_with_mismatches_complements(text: str, k: int, d: int, debug=False) -> Tuple[list[str],int]|list[str]:
-    """
-    Find the most frequent k-mers (with mismatches and reverse complements) in a DNA string.
-    O(4^k * (k + n))
-    """
-    kmers = [''.join(x) for x in itertools.product('ATGC', repeat=k)]
-    counts = {}
-    for kmer in kmers:
-        count_pattern = pattern_count_approx(text, kmer, d)
-        count_rc_pattern = pattern_count_approx(text, reverse_complement(kmer), d)
-        total_count = count_pattern + count_rc_pattern
-        counts[kmer] = total_count
-
-    max_count = max(counts.values())
-    max_freq_kmers = [kmer for kmer, count in counts.items() if count == max_count]
-
-    if not debug:
-      return max_freq_kmers
-    else:
-      return (max_freq_kmers, max_count)
+  """
+  Find the most frequent k-mers (with mismatches and reverse complements) in a DNA string.
+  Optimized version
+  """
+  freq_map = {}
+  for i in range(len(text)-k+1):
+    pattern = text[i:i+k]
+    #CANNOT union the sets here because if a pattern appears as a neighbor of both the pattern and the complement it should be counted twice
+    nbrs = neighbors_lt(pattern, d)
+    pattern_c = reverse_complement(pattern)
+    nbrs_c = neighbors_lt(pattern_c, d)
+    for nbr in nbrs:
+      freq_map[nbr] = freq_map.get(nbr,0) + 1
+    for nbrc in nbrs_c:
+      freq_map[nbrc] = freq_map.get(nbrc,0) + 1
+  max_freq = max(freq_map.values())
+  max_freq_kmers = [kmer for kmer in freq_map if freq_map[kmer] == max_freq]
+  if not debug:
+    return max_freq_kmers
+  else:
+    return (max_freq_kmers, max_freq)
 
 # Does NOT work in all cases
 # def optimized_freq(text, k, d, debug=False):
@@ -252,6 +284,7 @@ def gc_skew_iter(genome: str) -> Iterator[int]:
   skew_map = {'G': 1, 'C': -1, 'A': 0, 'T': 0} #contribution to skew of each base
   skews = []
   curr = 0
+  yield 0
   for char in genome:
     curr += skew_map[char]
     skews.append(curr)

@@ -5,69 +5,6 @@ import logging
 import constants
 import os
 
-def parse_atom(atom):
-  if atom[0].isdigit():
-    return int(atom)
-  elif atom[0].isalpha():
-    return atom.strip()
-  else:
-    raise Exception("unknown atom")
-
-def parse_line(line):
-  atoms = [parse_atom(a) for a in line.split()]
-  if len(atoms) == 1:
-    return atoms[0]
-  else:
-    return atoms
-
-def parse_input(text):
-  lines = [l for l in text.splitlines() if len(l) > 0]
-  parsed = []
-  for line in lines:
-    parsed.append(parse_line(line))
-  # if len(parsed) == 1 and hasattr(parsed[0], '__iter__') and not isinstance(parsed[0], str):
-  #   return parsed[0]
-  return parsed
-
-def run_test(input_path, function_to_test, inp_transform=lambda t: t):
-  input_folder = os.path.join(input_path, 'inputs')
-  output_folder = os.path.join(input_path, 'outputs')
-      
-  input_files = [f for f in os.listdir(input_folder) if f.startswith('input_') and f.endswith('.txt')]
-      
-  for input_file in input_files:
-    with open(os.path.join(input_folder, input_file), 'r') as infile:
-      input_data = infile.read()  # Assuming the function takes the entire file content as input
-      input = parse_input(input_data)
-      transform = inp_transform(input)
-      logging.debug(f"Parsed input = {transform}")
-
-      result = function_to_test(*transform)
-
-      # Construct corresponding output file name
-      output_file = input_file.replace('input_', 'output_')
-      with open(os.path.join(output_folder, output_file), 'r') as outfile:
-        expected_output = outfile.read()
-
-      # unwrap
-      parsed_output = parse_input(expected_output)
-      if hasattr(result, '__iter__') and not isinstance(result, str) and len(result) == 1:
-        result = result[0]
-      if hasattr(parsed_output, '__iter__') and not isinstance(parsed_output, str) and len(parsed_output) == 1:
-        parsed_output = parsed_output[0]
-
-      # sort
-      if hasattr(result, '__iter__') and not isinstance(parsed_output, str):
-        parsed_output = sorted(parsed_output)
-      if hasattr(result, '__iter__') and not isinstance(result, str):
-        result = sorted(result)
-
-      logging.debug(f"expected_output = {parsed_output}")
-      logging.debug(f"output = {result}")
-      
-      assert result == parsed_output, f"Mismatch in file {input_file}\nExpected {parsed_output}\nbut got {result}\non input {input}"
-  print(f"{function_to_test.__name__}: all tests passed!")
-    
 def test_week1():
   print_sep("""\nBioinformatics I: Week 1 - Where in the Genome Does Replication Begin?""")
 

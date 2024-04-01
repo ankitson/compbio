@@ -1,3 +1,4 @@
+import logging
 import os
 import sqlite3
 import json
@@ -119,11 +120,91 @@ def print_iter(l: Iterator) -> None:
     
 def print_highlight(str: str, highlight: Iterable, color="BOLD"):
   for h in highlight:
-    str = str.replace(h, c("BOLD", h))
+    str = str.replace(h, c(color, h))
   print(str)
 
 def print_highlight_motifs(motifs: Iterable, highlights: Iterable, color="BOLD"):
   for (motif,highlight) in zip(motifs,highlights):
     motif = motif.replace(highlight, c(color, highlight))
     print(motif)
+
+## COGNITERRA TEST UTILS 
+
+def parse_atom(atom):
+  if atom[0].isdigit():
+    return int(atom)
+  elif atom[0].isalpha():
+    return atom.strip()
+  else:
+    raise Exception("unknown atom")
+
+def parse_line(line):
+  atoms = [parse_atom(a) for a in line.split()]
+  if len(atoms) == 1:
+    return atoms[0]
+  else:
+    return atoms
+
+def parse_input(text):
+  lines = [l for l in text.splitlines() if len(l) > 0]
+  parsed = []
+  for line in lines:
+    parsed.append(parse_line(line))
+  # if len(parsed) == 1 and hasattr(parsed[0], '__iter__') and not isinstance(parsed[0], str):
+  #   return parsed[0]
+  return parsed
+
+def trunc(s):
+  s = str(s)
+  if len(s) > 100:
+    return s[0:98] + ".."
+  return s
   
+def run_test(input_path, function_to_test, inp_transform=lambda t: t, out_transform=lambda t: t, exp_out_transform=lambda t: t):
+  """Given the path to a folder containing the input and output files, and a function to test, 
+  runs the function on each input file and compares the result to the corresponding output file."""
+  input_folder = os.path.join(input_path, 'inputs')
+  output_folder = os.path.join(input_path, 'outputs')
+      
+  input_files = [f for f in os.listdir(input_folder) if f.startswith('input_') and f.endswith('.txt')]
+  
+  # logging.info(f"{function_to_test.__name__} on ({trunc(input)})")
+  for input_file in input_files:
+    with open(os.path.join(input_folder, input_file), 'r') as infile:
+      input_data = infile.read()
+      input = parse_input(input_data)
+      transform = inp_transform(input)
+      logging.debug(f"{function_to_test.__name__}: input = {trunc(transform)}")
+      
+      # logging.debug("Calling function with ")
+      result = out_transform(function_to_test(*transform))
+      logging.debug(f"{function_to_test.__name__}: result = {trunc(result)}")
+
+      # Construct corresponding output file name
+      output_file = input_file.replace('input_', 'output_')
+      with open(os.path.join(output_folder, output_file), 'r') as outfile:
+        expected_output = outfile.read()
+
+      # unwrap
+      parsed_output = parse_input(expected_output)
+      parsed_output = exp_out_transform(parsed_output)
+      while hasattr(result, '__iter__') and not isinstance(result, str) and len(result) == 1:
+        result = result[0]
+      while hasattr(parsed_output, '__iter__') and not isinstance(parsed_output, str) and len(parsed_output) == 1:
+        parsed_output = parsed_output[0]
+
+      # sort
+      if hasattr(parsed_output, '__iter__') and not isinstance(parsed_output, str):
+        parsed_output = sorted(parsed_output)
+      if hasattr(result, '__iter__') and not isinstance(result, str):
+        result = sorted(result)
+
+      logging.debug(f"{function_to_test.__name__}: expect = {trunc(parsed_output)}")
+      logging.debug(f"{function_to_test.__name__}: cleaned result = {trunc(result)}")
+
+      if result != parsed_output:
+        logging.info(f"{function_to_test.__name__}: ({trunc(input)}) expect {trunc(parsed_output)} but got {trunc(result)}")
+      assert result == parsed_output, f"Mismatch in file {input_file}\nExpected {parsed_output}\nbut got {result}\non input {input}"
+      
+  print(f"{function_to_test.__name__}: all tests passed!")
+    
