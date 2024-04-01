@@ -108,10 +108,14 @@ def c(color: str, text: str) -> str:
 
 def print_sep(text:str|None=None) -> None:
   SEP_LEN = 100
+  lines = text.splitlines()
   if text:
-    num_char = len(text)
+    line1 = lines[0].strip()
+    num_char = len(line1)
     num_spc = SEP_LEN - num_char
-    print(c("RED","-"*(num_spc//2)) + c("BLUE",text) + c("RED","-"*(num_spc//2)))
+    print(c("RED","-"*(num_spc//2)) + c("BLUE",line1) + c("RED","-"*(num_spc//2)))
+    for line in lines[1:]:
+      print(c("BLUE", line))
   else:
     print(c("RED","-"*100))
 
@@ -132,7 +136,12 @@ def print_highlight_motifs(motifs: Iterable, highlights: Iterable, color="BOLD")
 
 def parse_atom(atom):
   if atom[0].isdigit():
-    return int(atom)
+    p = 0
+    try:
+      p = int(atom)
+    except ValueError:
+      p = float(atom)
+    return p
   elif atom[0].isalpha():
     return atom.strip()
   else:

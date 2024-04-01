@@ -8,7 +8,6 @@ from typing import Iterable, Iterator, Tuple
 import pytest
 import numpy as np
 import pandas as pd
-from numpy import ndarray
 import constants
 from util import print_highlight_motifs, print_sep
 
@@ -308,12 +307,12 @@ def motif_enumerate_bruteforce(strings, k, d):
           motifs.add(approx_pattern)
   return list(motifs)
 
-def profile_matrix_as_dataframe(matrix: ndarray) -> pd.DataFrame:
+def profile_matrix_as_dataframe(matrix: np.ndarray) -> pd.DataFrame:
   """The rows of matrix must be in order of BASES - A,C,G,T"""
   assert(matrix.shape[0] == 4)
   return pd.DataFrame(matrix, index=constants.BASES)
 
-def count_motif_matrix(motifs: ndarray, pseudo_counts=False) -> pd.DataFrame:
+def count_motif_matrix(motifs: np.ndarray, pseudo_counts=False) -> pd.DataFrame:
   """Count the number of bases at each position across the given motifs
   Input: motifs is a 4xN ndarray, pseudo_counts will add 1 to each count for non-zero probabilities
   """
@@ -327,13 +326,13 @@ def count_motif_matrix(motifs: ndarray, pseudo_counts=False) -> pd.DataFrame:
         count_matrix[i, j] += np.sum(motifs[:, j] == nucleotide)
   return count_matrix
 
-def profile_motif_matrix(motifs: ndarray, pseudo_counts=False) -> pd.DataFrame:
+def profile_motif_matrix(motifs: np.ndarray, pseudo_counts=False) -> pd.DataFrame:
   count_matrix = count_motif_matrix(motifs, pseudo_counts)
   prob_matrix = count_matrix / np.sum(count_matrix, axis=0)
   labeled_matrix = pd.DataFrame(prob_matrix, index=constants.BASES)
   return labeled_matrix
 
-def score_motif_profile_entropy(profile: ndarray) -> float:
+def score_motif_profile_entropy(profile: np.ndarray) -> float:
   for i in range(profile.shape[0]):
     for j in range(profile.shape[1]):
       profile[i, j] = 0 if profile[i,j] == 0 else -1 * profile[i, j] * math.log(profile[i,j], 2)
@@ -384,11 +383,13 @@ def profile_most_probable_kmer(text: str, profile_df: pd.DataFrame, k: int):
       best_prob,best_kmer = prob,pattern
   return best_kmer
 
-def greedy_motif_search(texts: list[str],k: int, pseudo_counts=True) -> ndarray:
+def greedy_motif_search(texts: list[str],k: int, pseudo_counts=True, debug=False) -> list[str]|Tuple[list[str],int]:
   """Greedy Motif Search
     Input: Integers k and t, followed by a space-separated collection of strings Dna.
     Output: A collection of strings BestMotifs resulting from applying GreedyMotifSearch(Dna, k, t). If at any step you find more than one Profile-most probable k-mer in a given string, use the one occurring first.
   """
+  import pdb
+  pdb.set_trace()
   t,n = len(texts),len(texts[0])
   best_motifs, best_score = np.array([list(seq[:k]) for seq in texts]), float('inf')
   for motif in [texts[0][i:i+k] for i in range(n-k+1)]:
@@ -402,7 +403,12 @@ def greedy_motif_search(texts: list[str],k: int, pseudo_counts=True) -> ndarray:
       best_score = score_motif_counts(count_motif_matrix(motifs))
   
   best_motifs_1d = [''.join(row) for row in best_motifs]
-  return best_motifs_1d, best_score
+  # import pdb
+  # pdb.set_trace()
+  if debug:
+    return best_motifs_1d, best_score
+  else:
+    return best_motifs_1d
 
 def randomized_motif_search(texts, k, pseudo_counts=True, iterations=1000, debug=False):
   t,n = len(texts), len(texts[0])
