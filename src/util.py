@@ -175,8 +175,8 @@ def run_test(input_path, function_to_test, inp_transform=lambda t: t, out_transf
   input_folder = os.path.join(input_path, 'inputs')
   output_folder = os.path.join(input_path, 'outputs')
       
-  input_files = [f for f in os.listdir(input_folder) if f.startswith('input_') and f.endswith('.txt')]
-  
+  input_files = sorted([f for f in os.listdir(input_folder) if f.startswith('input_') and f.endswith('.txt')])
+
   # logging.info(f"{function_to_test.__name__} on ({trunc(input)})")
   for input_file in input_files:
     with open(os.path.join(input_folder, input_file), 'r') as infile:

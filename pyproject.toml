@@ -1,0 +1,21 @@
+[project]
+name = "compbio"
+version = "0.1.0"
+description = "Bioinformatics exercises and utilities."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "pandas",
+  "numpy",
+  "scipy",
+  "flask",
+  "plotly",
+  "dash",
+  "dash-bootstrap-components",
+  "networkx",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+]

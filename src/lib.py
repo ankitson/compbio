@@ -383,13 +383,11 @@ def profile_most_probable_kmer(text: str, profile_df: pd.DataFrame, k: int):
       best_prob,best_kmer = prob,pattern
   return best_kmer
 
-def greedy_motif_search(texts: list[str],k: int, pseudo_counts=True, debug=False) -> list[str]|Tuple[list[str],int]:
+def greedy_motif_search(texts: list[str],k: int, pseudo_counts=False, debug=False) -> list[str]|Tuple[list[str],int]:
   """Greedy Motif Search
     Input: Integers k and t, followed by a space-separated collection of strings Dna.
     Output: A collection of strings BestMotifs resulting from applying GreedyMotifSearch(Dna, k, t). If at any step you find more than one Profile-most probable k-mer in a given string, use the one occurring first.
   """
-  import pdb
-  pdb.set_trace()
   t,n = len(texts),len(texts[0])
   best_motifs, best_score = np.array([list(seq[:k]) for seq in texts]), float('inf')
   for motif in [texts[0][i:i+k] for i in range(n-k+1)]:
@@ -403,8 +401,6 @@ def greedy_motif_search(texts: list[str],k: int, pseudo_counts=True, debug=False
       best_score = score_motif_counts(count_motif_matrix(motifs))
   
   best_motifs_1d = [''.join(row) for row in best_motifs]
-  # import pdb
-  # pdb.set_trace()
   if debug:
     return best_motifs_1d, best_score
   else:

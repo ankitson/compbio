@@ -1,0 +1,126 @@
+:root {
+  --bg-top: #f4efe5;
+  --bg-bottom: #f8f7f2;
+  --ink: #1f2a2e;
+  --ink-muted: #5c6b73;
+  --accent: #1f4e5f;
+  --accent-2: #d27a5c;
+  --panel: #ffffffcc;
+  --border: #e2d9c8;
+  --shadow: 0 12px 30px rgba(31, 42, 46, 0.12);
+  --radius: 16px;
+  --font-head: "Fraunces", "Palatino", "Garamond", serif;
+  --font-body: "IBM Plex Sans", "Source Sans 3", "Noto Sans", "Trebuchet MS", sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background:
+    radial-gradient(1100px 600px at 10% -10%, #f0d9c3 0%, transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, #cfe3e1 0%, transparent 55%),
+    linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+  min-height: 100vh;
+}
+
+.app-shell {
+  padding: 2rem 2.5rem 3rem;
+  animation: rise-in 600ms ease both;
+}
+
+.page-title {
+  font-family: var(--font-head);
+  letter-spacing: 0.5px;
+  text-align: center;
+  color: var(--accent);
+  margin: 0.75rem 0 1.5rem;
+}
+
+.control .Select-control,
+.control .Select-menu-outer,
+.control input,
+.control label {
+  font-size: 0.95rem;
+}
+
+.control .Select-control {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 16px rgba(31, 42, 46, 0.08);
+}
+
+.control .Select-menu-outer {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.control label {
+  color: var(--ink-muted);
+  margin-right: 0.5rem;
+}
+
+.panel {
+  padding: 1rem;
+  background: var(--panel);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  animation: fade-up 700ms ease both;
+}
+
+#graph-content {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+#graph-description {
+  color: var(--ink-muted);
+  font-size: 1.02rem;
+  line-height: 1.6;
+  padding: 0.75rem 0.5rem;
+}
+
+#graph-description img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0.5rem auto;
+}
+
+.panel h2,
+.panel h3 {
+  font-family: var(--font-head);
+  color: var(--accent);
+  letter-spacing: 0.3px;
+}
+
+.border-primary {
+  border-color: var(--accent) !important;
+}
+
+.border-secondary {
+  border-color: var(--accent-2) !important;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

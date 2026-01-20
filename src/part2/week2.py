@@ -20,11 +20,30 @@ def eulerian_cycle(graph, start=None):
   cycle = []
   start_node = start if start else 0
   visit(start_node)
-
-  # The result is reversed because the visit function appends nodes in reverse order
   return list(reversed(cycle))
 
 def eulerian_path(graph):
+  my_graph = copy.deepcopy(graph)
+  path = []
+  def visit(node):
+      while my_graph[node]:
+          next_node = my_graph[node].pop()
+          visit(next_node)
+      path.append(node)
+
+  start_node = next(node for node, edges in graph.items() if edges)
+  visit(start_node)
+  path = list(reversed(path))
+  if any(edges for edges in graph.values()):
+      # If not, find a new starting node and repeat the process
+      for node in path:
+        if graph[node]:
+          new_path = eulerian_path({node: graph[node] for node in path[path.index(node):]})
+          path = path[:path.index(node)] + new_path + path[path.index(node) + len(new_path):]
+          break
+  return path
+
+
   incomings = {}
   for (k,vs) in graph.items():
       for v in vs:
@@ -87,5 +106,6 @@ def rotation_eq(l1:list, l2:list):
   return False
 
 if __name__ == '__main__':
+  print("RUNNING MAIN WEEK2")
   sys.exit(pytest.main(["-s", __file__ + "::test_week2"])) #-s to not suppress prints
  

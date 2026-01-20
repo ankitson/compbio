@@ -10,9 +10,7 @@ Some of these problems are also on [Rosalind](https://rosalind.info/problems/loc
 
 **Setup**
 ```bash
-$ virtualenv ./venv
-$ source venv/bin/activate
-$ pip install -r requirements.txt
+$ uv sync
 ```
 
 **Run**
@@ -25,11 +23,10 @@ just web #run vis webserver
 
 or use bash:
 ```bash
-$ source venv/bin/activate
 $ cd src
-$ python3 wsgi.py #run vis webserver
-$ python3 -m part1.week1.py #run code & tests for each week/part
-$ python3 lib.py #run tests
+$ uv run python wsgi.py #run vis webserver
+$ uv run python -m part1.week1 #run code & tests for each week/part
+$ uv run python lib.py #run tests
 ```
 
 **Todos**
